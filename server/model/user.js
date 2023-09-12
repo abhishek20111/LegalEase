@@ -1,14 +1,14 @@
 const mongoose = require('mongoose');
-const {ObjectId} = mongoose.Schema.Types
+const { ObjectId } = mongoose.Schema.Types
 
 const userSchema = new mongoose.Schema({
-    
-    name:{
+
+    name: {
         type: String,
         required: true,
     },
-    email:{
-        type:String,
+    email: {
+        type: String,
         unique: true,
         required: true,
     },
@@ -18,11 +18,10 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-    }, 
+        default:'User'
+    },
     
-    
-    template:[{type:String}]
 
-},{timestamps: true})
+}, { timestamps: true })
 
-module.exports = mongoose.model('AssigR2', userSchema);
+module.exports = mongoose.model('User_SIH', userSchema);

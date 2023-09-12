@@ -1,10 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
-// require('./model/UserData.js')
-// require('./model/UnitChanger.js')
-// require('./model/template.js')
-// const router1 = require('./route/routerUser.js');
+require('./model/user.js')
+require('./model/A_user.js')
+const router = require('./router/router.js');
 const dotenv = require('dotenv');
 const path = require('path')
  
@@ -33,7 +32,7 @@ mongoose.connect(`mongodb+srv://abhi:${process.env.DB_PASSWORD}@cluster0.isarath
     });
 
 
-// app.use('/', router1);
+// app.use('/', router);
 
 // Serving the frontent
 app.use(express.static(path.join(__dirname, 'client', 'dist')))
