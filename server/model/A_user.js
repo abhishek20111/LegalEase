@@ -2,29 +2,14 @@ const mongoose = require('mongoose');
 const { ObjectId } = mongoose.Schema.Types
 
 const userSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-    },
-    email: {
-        type: String,
-        unique: true,
-        required: true,
-    },
-    password: {
-        type: String,
-        required: true,
-    },
-    role: {
-        type: String,
-        default:'User'
-    },
-    photo: String,
+    ID:{type:ObjectId , ref:"User_SIH"},
     uid: {
         type: String,
-        require: true
+        require: true,
+        unique: true
     },
     phone_no: Number,
+    title : String,
     position: String,
     description: {
         experience: {
@@ -46,7 +31,7 @@ const userSchema = new mongoose.Schema({
         description: String
     }],
     points: [{
-        point_to_complete: String,
+        point_complete: String,
     }]
 
 

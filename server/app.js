@@ -13,7 +13,7 @@ const app = express();//to create an instance of the Express application object.
 app.use(express.json())//`express.json()` is middleware provided by the Express framework for parsing incoming JSON data,  It is used to automatically parse incoming JSON payloads and make the resulting data available in the `request.body` object.
 app.use(express.urlencoded({ extended: true }));///middleware provided by the Express framework for parsing incoming HTTP requests with URL-encoded payloads. This middleware is used to automatically parse incoming URL-encoded payloads and make the resulting data available in the `request.body` object
 
-const port = process.env.PORT || 5000; 
+const port = process.env.PORT || 8080; 
  
 app.use(cors({ credentials: true }));
 // app.use(cors({ origin: origin, credentials: true }));//provided by the `cors` package for enabling Cross-Origin Resource Sharing (CORS) in an Express app, CORS is a mechanism that allows a web page to make requests to a different domain 
@@ -32,7 +32,7 @@ mongoose.connect(`mongodb+srv://abhi:${process.env.DB_PASSWORD}@cluster0.isarath
     });
 
 
-// app.use('/', router);
+app.use('/', router);
 
 // Serving the frontent
 app.use(express.static(path.join(__dirname, 'client', 'dist')))
