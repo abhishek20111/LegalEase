@@ -11,10 +11,14 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.9.5",
+    "alpinejs": "^3.13.0",
     "axios": "^1.5.0",
+    "country-state-city": "^3.2.1",
     "jwt-decode": "^3.1.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-icons": "^4.11.0",
+    "react-rating-stars-component": "^2.2.0",
     "react-redux": "^8.1.2",
     "react-router-dom": "^6.16.0",
     "react-toastify": "^9.1.3"
