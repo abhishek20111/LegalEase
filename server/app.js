@@ -3,7 +3,11 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 require('./model/user.js')
 require('./model/A_user.js')
+require('./model/forum.js')
+require('./model/Conversation.js')
+require('./model/Message.js')
 const router = require('./router/router.js');
+const Conversation = require('./router/Conversation.js');
 const dotenv = require('dotenv');
 const path = require('path')
  
@@ -33,13 +37,14 @@ mongoose.connect(`mongodb+srv://abhi:${process.env.DB_PASSWORD}@cluster0.isarath
 
 
 app.use('/', router);
+app.use('/conversation', Conversation);
 
 // Serving the frontent
-app.use(express.static(path.join(__dirname, 'client', 'dist')))
-app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'))
+// app.use(express.static(path.join(__dirname, 'client', 'dist')))
+// app.get("*", (req, res) => {
+//     res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'))
 
-})
+// })
 
 app.listen(port, () => {
     console.log(`Server is running on port - ${port}`);

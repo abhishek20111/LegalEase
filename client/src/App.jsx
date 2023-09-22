@@ -10,6 +10,9 @@ import About from './component/About';
 import { ToastContainer } from 'react-toastify';
 import Logout from './component/Logout';
 import Profile from './component/Profile';
+import Forum from './component/Forum';
+import MessagePage from './component/message/MessagePage';
+import SearchLawyer from './component/SearchLawyer';
 
 export default function App() {
 
@@ -39,8 +42,11 @@ export default function App() {
         <Route path='/signin' element={<PublicElement><Signin /></PublicElement>} />
         <Route path='/signup' element={<PublicElement><Signup /></PublicElement>} />
         <Route path='/about' element={<PublicElement><About /></PublicElement>} />
+        <Route path='/searchlawer' element={<PublicElement><SearchLawyer /></PublicElement>} />
+        <Route path='/forum' element={<UserElement><Forum /></UserElement>} />
         <Route path='/profile' element={<UserElement><Profile /></UserElement>} />
         <Route path='/logout' element={<PublicElement><Logout /></PublicElement>} />
+        <Route path='/message' element={<UserElement><MessagePage /></UserElement>} />
         <Route path='/' element={<PublicElement><Home /></PublicElement>} />
       </Routes>
     )

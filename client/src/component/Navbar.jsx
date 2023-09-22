@@ -8,11 +8,14 @@ export default function Navbar() {
 
   return (
     <div>
-      <div className='w-[100vw] h-[130px] flex gap-x-4'>
+      <div className='w-[100vw] h-[60px] flex gap-x-4'>
         <div><Link to="/">Home </Link></div>
         {(isLogin) ?
           <>
             <div><Link to="/profile">Profile </Link></div>
+            <div><Link to="/forum">Forum </Link></div>
+            <div><Link to="/searchLawer">Search </Link></div>
+            <div><Link to="/message">Message </Link></div>
             <div><Link to="/logout">Logout </Link></div>
           </>
           :
