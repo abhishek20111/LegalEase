@@ -14,6 +14,7 @@ export default function Navbar() {
           <>
             <div><Link to="/profile">Profile </Link></div>
             <div><Link to="/logout">Logout </Link></div>
+            <div><Link to="/forum">ChitChat </Link></div>
           </>
           :
           <>
@@ -22,6 +23,8 @@ export default function Navbar() {
           </>
         }
         <div><Link to="/about">About </Link></div>
+        <div><Link to="/review">Review </Link></div>
+        {/* <div><Link to="/starrating">StarRating </Link></div> */}
       </div>
     </div>
   )

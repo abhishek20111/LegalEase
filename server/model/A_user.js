@@ -24,17 +24,35 @@ const userSchema = new mongoose.Schema({
     tag: [String],
     address: { type: String },
     T_rating: String,
+   
+    
+
+    // ratings :[
+    //     {
+    //         star:Number,
+    //         postedby:{type: mongoose.Schema.Types.ObjectId,ref:"User_SIH"}
+    //     }
+    // ],
+    // totalrating:[{
+    //     type:String,
+    //     default:0
+    // }],
+    // points: [{
+    //     point_complete: String,
+    // }]
+
+
     review: [{
-        Id: ObjectId,
-        name: String,
+        Id: {type:ObjectId, ref:"User_SIH"},
+        name: String, 
         rating: String,
         description: String
     }],
-    points: [{
-        point_complete: String,
-    }]
 
-
-}, { timestamps: true })
-
-module.exports = mongoose.model('A_User_SIH', userSchema);
+   
+    
+     
+    }, { timestamps: true });
+    
+  
+    module.exports = mongoose.model('A_User_SIH', userSchema);

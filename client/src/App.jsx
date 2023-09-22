@@ -10,6 +10,9 @@ import About from './component/About';
 import { ToastContainer } from 'react-toastify';
 import Logout from './component/Logout';
 import Profile from './component/Profile';
+import Forum from './component/Forum';
+import Review from './component/Review';
+import Starrating from './component/Starrating';
 
 export default function App() {
 
@@ -42,6 +45,9 @@ export default function App() {
         <Route path='/profile' element={<UserElement><Profile /></UserElement>} />
         <Route path='/logout' element={<PublicElement><Logout /></PublicElement>} />
         <Route path='/' element={<PublicElement><Home /></PublicElement>} />
+        <Route path='/forum' element={<PublicElement><Forum /></PublicElement>} />
+        <Route path='/review' element={<PublicElement><Review /></PublicElement>} />
+        <Route path='/starrating' element={<PublicElement><Starrating /></PublicElement>} />
       </Routes>
     )
   }
