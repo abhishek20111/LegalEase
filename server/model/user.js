@@ -20,6 +20,12 @@ const userSchema = new mongoose.Schema({
         type: String,
         default:'User'
     },
+    photo : String,
+    blockchain:[{
+        hash:String,
+        name:String
+    }],
+    Advance_id:[String]
     
 
 }, { timestamps: true })

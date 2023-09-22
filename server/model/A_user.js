@@ -2,53 +2,57 @@ const mongoose = require('mongoose');
 const { ObjectId } = mongoose.Schema.Types
 
 const userSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-    },
-    email: {
-        type: String,
-        unique: true,
-        required: true,
-    },
-    password: {
-        type: String,
-        required: true,
-    },
-    role: {
-        type: String,
-        default:'User'
-    },
-    photo: String,
+    ID:{type:ObjectId , ref:"User_SIH"},
     uid: {
         type: String,
-        require: true
+        require: true,
+        unique: true
     },
     phone_no: Number,
+    title : String,
     position: String,
     description: {
         experience: {
             year: Number,
             winning: Number,
-            total_case: Number
+            total_case: Number,
         },
         about: [String],
         achievements: [String]
     },
     avilable: Boolean,
     tag: [String],
+    verifyUser:{ type:Boolean, default:false},
     address: { type: String },
+    city:String,
+    State:String,
     T_rating: String,
     review: [{
-        Id: ObjectId,
-        name: String,
+        Id: {type:ObjectId, ref:"User_SIH"},
+        name: String, 
         rating: String,
         description: String
     }],
+    clientId:[{
+        Id:String,
+        Objectives:[{
+            task:{
+                complete:Boolean,
+                task_info:[String],
+                task_point: {type:Number, default:0}
+            } 
+        }]
+    }],
+    document:[{
+        adhar:String,
+        pan:String,
+        lic:String,
+    }],
     points: [{
-        point_to_complete: String,
+        point_curr: {type:Number, default:0},
+        profile_v:{type:Number, default:0},
+        externalPoint:Number
     }]
-
 
 }, { timestamps: true })
 
