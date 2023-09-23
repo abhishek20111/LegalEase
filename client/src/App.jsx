@@ -219,7 +219,7 @@ export default function App() {
             </button>
           </div>
           <nav className="flex flex-col flex-1 w-64 p-4 mt-4">
-            <Link to="/" className="flex items-center space-x-2">
+            <Link to="/" className="flex items-center space-x-2" onClick={toggleSidebar}>
               <svg
                 className="w-6 h-6"
                 aria-hidden="true"
@@ -239,16 +239,16 @@ export default function App() {
             </Link>
             {isLogin ? (
               <>
-                <div>
+                <div onClick={toggleSidebar}>
                   <Link to="/profile">Profile </Link>
                 </div>
-                <div>
+                <div onClick={toggleSidebar}>
                   <Link to="/logout">Logout </Link>
                 </div>
               </>
             ) : (
               <>
-                <div>
+                <div onClick={toggleSidebar}>
                   <Link to="/signin " className=" flex -ml-1">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -263,7 +263,7 @@ export default function App() {
                 </div>
               </>
             )}
-            <div>
+            <div onClick={toggleSidebar}>
               <Link to="/search" className="flex gap-x-1 ml-1">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -276,8 +276,8 @@ export default function App() {
                 Search
               </Link>
             </div>
-            <div>
-              <Link to="/about" className="flex gap-x-1">
+            <div onClick={toggleSidebar}>
+              <Link to="/about" className="flex gap-x-1" >
                 <svg
                   clip-rule="evenodd"
                   fill-rule="evenodd"
@@ -300,7 +300,7 @@ export default function App() {
       </div>
       <div className="w-full">
         <main className="flex mx-auto">
-          <div
+          <div onClick={toggleSidebar}
             className={`inset-0 fixed w-full h-full bg-black bg-opacity-70 z-10 ${
               isSidebarOpen ? "" : "hidden"
             }`}

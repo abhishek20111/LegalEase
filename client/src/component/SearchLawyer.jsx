@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Country, State, City } from "country-state-city";
+import "./pageLoader.css";
+import bgOverlay from "../assets/overlay.jpg";
 import RatingStars from "react-rating-stars-component";
+import Mainprofile from "./Mainprofile";
 import axios from "axios";
+import ReactPaginate from "react-paginate";
 import {
   FaFacebook,
   FaTwitter,
@@ -13,83 +17,6 @@ import {
   FaInstagram,
   FaBookmark,
 } from "react-icons/fa";
-
-const data = [
-  {
-    _id: { $oid: "6506f11f3d0b555071b84d65" },
-    ID: { $oid: "6506e93a93e6020c49f5f98f" },
-    uid: "23",
-    name: "Dimpy",
-    price: 1500000,
-    phone_no: { $numberDouble: "9193894923.0" },
-    title: "Advocate",
-    position: "Document Writing",
-    description: {
-      experience: {
-        year: { $numberInt: "2" },
-        winning: { $numberInt: "323" },
-        total_case: { $numberInt: "34" },
-      },
-      about: ["23"],
-      achievements: ["34"],
-    },
-    socialMedia: {
-      facebook: "https://www.facebook.com",
-      twitter: "https://www.twitter.com",
-      linkedin: "https://www.linkedin.com/in",
-      instagram: "https://www.instagram.com",
-    },
-    avilable: true,
-    tag: ["Intellectual Property"],
-    address: "djsadj",
-    T_rating: "4.0",
-    review: [],
-    points: [],
-    createdAt: { $date: { $numberLong: "1694953759988" } },
-    updatedAt: { $date: { $numberLong: "1694953759988" } },
-    __v: { $numberInt: "0" },
-    photo:
-    "https://res.cloudinary.com/dbvurfvz8/image/upload/v1694953601/eejt4xb4r4zbzjlhiira.jpg",
-    city: "DHAMPUR",
-  },
-  {
-    _id: { $oid: "6506f11f3d0b555071b84d65" },
-    ID: { $oid: "6506e93a93e6020c49f5f98f" },
-    uid: "23",
-    name: "abc",
-    price: 1300000,
-    phone_no: { $numberDouble: "9193894923.0" },
-    title: "Advocate",
-    position: "court cases",
-    description: {
-      experience: {
-        year: { $numberInt: "21" },
-        winning: { $numberInt: "323" },
-        total_case: { $numberInt: "34" },
-      },
-      about: ["23"],
-      achievements: ["34"],
-    },
-    avilable: true,
-    tag: ["Intellectual Property"],
-    address: "djsadj",
-    T_rating: "5.0",
-    review: [],
-    points: [],
-    createdAt: { $date: { $numberLong: "1694953759988" } },
-    updatedAt: { $date: { $numberLong: "1694953759988" } },
-    __v: { $numberInt: "0" },
-    photo:
-    "https://res.cloudinary.com/dbvurfvz8/image/upload/v1694953601/eejt4xb4r4zbzjlhiira.jpg",
-    city: "Varanasi",
-    socialMedia: {
-      facebook: "https://www.facebook.com",
-      twitter: "https://www.twitter.com",
-      linkedin: "https://www.linkedin.com/in",
-      instagram: "https://www.instagram.com",
-    },
-  },
-];
 
 function SearchLawyer() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -113,37 +40,54 @@ function SearchLawyer() {
   /*-------------------------------------------------------------------------------*/
   const [allProfileData, setAllProfileData] = useState([]);
   const [shouldRefresh, setShouldRefresh] = useState(true);
-  
+
   const axiosConfig = {
     headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`
-    }
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
   };
-  
+
+  const [openProfile, setOpenProfile] = useState();
+  const [modalOpen, setModalOpen] = useState(false);
   const getAllProfile = async () => {
-  
     try {
-      const response = await axios.get('http://localhost:8080/advanceProfile');
+      const response = await axios.get("http://localhost:8080/advanceProfile");
       setAllProfileData(response.data.A_Data);
-      console.log(allProfileData);
-  
+      console.log("All data:", response.data.A_Data);
     } catch (error) {
       console.error(error);
     }
-  
   };
-  
+  const [isLoading, setIsLoading] = useState(false);
+  const getOneProfile = async (id) => {
+    console.log("gettingData, ID:", id);
+    setModalOpen(true);
+    try {
+      setIsLoading(true);
+      const response = await axios.get(
+        `http://localhost:8080/getProfile/${id}`,
+        axiosConfig
+      );
+      console.log("data recieved:", response);
+      setOpenProfile(response.data);
+      console.log("props data ", openProfile);
+      setIsLoading(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const handleRefresh = () => {
     setShouldRefresh(!shouldRefresh);
   };
-  
+
   useEffect(() => {
     if (shouldRefresh) {
       getAllProfile();
       setShouldRefresh(false);
     }
   }, [shouldRefresh]);
-  
+
   /*-------------------------------------------------------------------------------*/
   useEffect(() => {
     if (selectedCountry) {
@@ -172,7 +116,7 @@ function SearchLawyer() {
   };
   const handleCountryChange = (value) => {
     console.log(value);
-    setSelectedCountry('IN');
+    setSelectedCountry("IN");
   };
 
   const handleStateChange = (value) => {
@@ -183,7 +127,7 @@ function SearchLawyer() {
     setSelectedCity(value);
     setSearchQuery(value);
   };
-  
+
   const handleBookmarkToggle = (lawyerId) => {
     if (bookmarkedLawyers.includes(lawyerId)) {
       const updatedBookmarks = bookmarkedLawyers.filter(
@@ -252,121 +196,162 @@ function SearchLawyer() {
       return 0;
     });
 
+  const itemsPerPage = 8;
 
+  // Create state to track the current page
+  const [currentPage, setCurrentPage] = useState(0);
+
+  // Calculate the start and end indices for the current page
+  const startIndex = currentPage * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+
+  // Get the lawyers for the current page
+  const currentLawyers = filteredLawyers.slice(startIndex, endIndex);
+
+  // Handle page change
+  const handlePageChange = (selectedPage) => {
+    setCurrentPage(selectedPage.selected);
+  };
 
   return (
-    <div className="bg-blue-100 min-h-screen  ">
-      <div className="bg-blue-900  mb-5  ">
-        <div className="flex  justify-center items-center ">
-          <div className="mb-4 ">
-            <div className="relative p-5 text-white  ">
-              <div className="space-y-2  ">
-                <div className=" mt-20 space-x-4 flex flex-row ">
-                  
-                  {/* </div> */}
-
-                  {/* <div className="flex-row "> */}
-
-                  <select
-                    className=" rounded hover:transform hover:-translate-y-2 transition-transform hover:bg-blue-700  p-2  w-1/3 font-semibold bg-blue-500 text-white"
-                    value={selectedState}
-                    onChange={(e) => handleStateChange(e.target.value)}
+    <div className="bg-blue-50 min-h-screen  ">
+      <div
+        className=" mb-5 py-10 flex flex-col justify-center"
+        style={{ backgroundImage: `url(${bgOverlay})` }}
+      >
+        <div className="flex py-5 flex-col items-center justify-center  ">
+          <div className="flex justify-start w-[70%] font-thin font-Oxygen text-white">
+            <p className="px-5 text-3xl">
+              Let's get{" "}
+              <span className=" font-semibold italic">Started...</span>
+            </p>
+          </div>
+          <input
+            type="text "
+            placeholder=" Search here "
+            className="p-2 mt-3 justify-center items-center border font-semibold rounded-full w-[70%]  "
+            value={searchQuery}
+            onChange={handleSearchChange}
+            // onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {suggestions.length > 0 && (
+            <div className="absolute z-10 bg-white  w-1/2 rounded-md shadow-md">
+              <ul>
+                {suggestions.map((suggestion, index) => (
+                  <li
+                    key={index}
+                    className="p-2 cursor-pointer hover:bg-gray-200"
+                    onClick={() => {
+                      setSearchQuery(suggestion.name) || setSuggestions([]);
+                    }}
                   >
-                    <option value="">Select state</option>
-                    {stateData.map((state) => (
-                      <option key={state.isoCode} value={state.isoCode}>
-                        {state.name}
-                      </option>
-                    ))}
-                  </select>
-                  {/* </div> */}
+                    {suggestion.name}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <div className="flex justify-between items-center w-[70%]">
+            <div className="">
+              <div className="text-white  ">
+                <div className="space-y-2  ">
+                  <div className=" space-x-1 flex flex-row ">
+                    {/* </div> */}
 
-                  {/* <div className="mb-4 "> */}
+                    {/* <div className="flex-row "> */}
 
-                  <select
-                    className=" rounded p-2 w-1/3 hover:transform hover:-translate-y-2 transition-transform hover:bg-blue-700 font-semibold bg-blue-500 text-white "
-                    value={selectedCity}
-                    onChange={(e) => handleCityChange(e.target.value)}
-                  >
-                    <option value="">Select city</option>
-                    {City.getCitiesOfState(selectedCountry, selectedState).map(
-                      (city) => (
+                    <select
+                      className="rounded-md py-2 w-[110px] font-semibold text-black"
+                      value={selectedState}
+                      onChange={(e) => handleStateChange(e.target.value)}
+                    >
+                      <option value="">Select state</option>
+                      {stateData.map((state) => (
+                        <option key={state.isoCode} value={state.isoCode}>
+                          {state.name}
+                        </option>
+                      ))}
+                    </select>
+                    {/* </div> */}
+
+                    {/* <div className="mb-4 "> */}
+
+                    <select
+                      className=" rounded-md py-2 w-[110px] font-semibold text-black "
+                      value={selectedCity}
+                      onChange={(e) => handleCityChange(e.target.value)}
+                    >
+                      <option value="">Select city</option>
+                      {City.getCitiesOfState(
+                        selectedCountry,
+                        selectedState
+                      ).map((city) => (
                         <option key={city.name} value={city.name}>
                           {city.name}
                         </option>
-                      )
-                    )}
-                  </select>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div className="relative flex-1 p-8  ">
-            <input
-              type="text "
-              placeholder=" Search here "
-              className="p-2 my-5 justify-center items-center border font-semibold rounded-full w-1/2   bg- opacity-40  "
-              value={searchQuery}
-              onChange={handleSearchChange}
-              // onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            {suggestions.length > 0 && (
-              <div className="absolute z-10 bg-white  w-1/2 rounded-md shadow-md">
-                <ul>
-                  {suggestions.map((suggestion, index) => (
-                    <li
-                      key={index}
-                      className="p-2 cursor-pointer hover:bg-gray-200"
-                      onClick={() => {
-                        setSearchQuery(suggestion.name) || setSuggestions([]);
-                      }}
-                    >
-                      {suggestion.name}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-          <div className="mt-20 flex items-center space-x-4 text-white p-4">
-            <button
-              className={`bg-blue-500 hover:transform hover:-translate-y-2 transition-transform font-semibold text-white px-4 py-2 hover:bg-blue-700  rounded-md ${
-                sortBy === "experience" ? "bg-blue-600" : ""
-              }`}
-              onClick={() => {
-                handleSortChange({ target: { value: "experience" } });
-                handleSortDirectionToggle();
-              }}
-            >
-              Sort by Experience {getSortIcon("experience")}
-            </button>
-            <button
-              className={`bg-blue-500 hover:transform hover:-translate-y-2 transition-transform font-semibold text-white px-4 py-2 hover:bg-blue-700  rounded-md ${
-                sortBy === "rating" ? "bg-blue-600" : ""
-              }`}
-              onClick={() => {
-                handleSortChange({ target: { value: "T_rating" } });
-                handleSortDirectionToggle();
-              }}
-            >
-              Sort by Ratings {getSortIcon("T_rating")}
-            </button>
-            <button
-              className={`bg-blue-500  hover:transform hover:-translate-y-2 transition-transform font-semibold text-white px-4 hover:bg-blue-700  py-2 rounded-md ${
-                sortBy === "price" ? "bg-blue-600" : ""
-              }`}
-              onClick={() => {
-                handleSortChange({ target: { value: "price" } });
-                handleSortDirectionToggle();
-              }}
-            >
-              Sort by Price {getSortIcon("price")}
-            </button>
+
+            <div className="flex items-center space-x-1 text-white p-4">
+              <p>Sort:</p>
+              <button
+                className={`font-semibold text-black px-4 py-2 bg-white rounded-full ${
+                  sortBy === "experience" ? "bg-blue-600 text-white" : ""
+                }`}
+                onClick={() => {
+                  handleSortChange({ target: { value: "experience" } });
+                  handleSortDirectionToggle();
+                }}
+              >
+                Experience {getSortIcon("experience")}
+              </button>
+              <button
+                className={`font-semibold text-black px-4 py-2 bg-white rounded-full ${
+                  sortBy === "experience" ? "bg-blue-600 text-white" : ""
+                }`}
+                onClick={() => {
+                  handleSortChange({ target: { value: "T_rating" } });
+                  handleSortDirectionToggle();
+                }}
+              >
+                Ratings {getSortIcon("T_rating")}
+              </button>
+              <button
+                className={`font-semibold text-black px-4 py-2 bg-white rounded-full ${
+                  sortBy === "experience" ? "bg-blue-600 text-white" : ""
+                }`}
+                onClick={() => {
+                  handleSortChange({ target: { value: "price" } });
+                  handleSortDirectionToggle();
+                }}
+              >
+                Sort by Price {getSortIcon("price")}
+              </button>
+            </div>
           </div>
         </div>
       </div>
+      {filteredLawyers.length == 0 && (
+        <div className="w-full h-screen flex justify-center items-center">
+          <div class="lds-grid">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+        </div>
+      )}
       <div className=" grid grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
-        {filteredLawyers.map((lawyer, index) => (
+        {currentLawyers.map((lawyer, index) => (
           <div
             key={index}
             className="  bg-white-100 hover:transform hover:-translate-y-2 transition-transform rounded-md shadow-md  hover:shadow-xl cursor-pointer  "
@@ -460,27 +445,89 @@ function SearchLawyer() {
             </div>
 
             <div className="mt-1  ">
-              <button className="bg-blue-900 hover:bg-blue-600 hover:transform hover:-translate-y-2 transition-transform text-white font-semibold font-serif  px-4 py-2 mb-20 mr-2  rounded-full float-right">
+              <button
+                onClick={() => {
+                  getOneProfile(lawyer.ID._id);
+                }}
+                className="bg-blue-900 hover:bg-blue-600 hover:transform hover:-translate-y-2 transition-transform text-white font-semibold font-serif  px-4 py-2 mb-20 mr-2  rounded-full float-right"
+              >
                 Connect
               </button>
               <FaBookmark
                 size={24}
                 color={
-                  bookmarkedLawyers.includes(lawyer._id) ? "#1f618d" : "#999"
+                  bookmarkedLawyers.includes(lawyer.ID._id) ? "#1f618d" : "#999"
                 } // Set the color based on bookmark status
-                onClick={() => handleBookmarkToggle(lawyer._id)} // Toggle bookmark status on click
+                onClick={() => handleBookmarkToggle(lawyer.ID._id)} // Toggle bookmark status on click
               />
             </div>
           </div>
         ))}
       </div>
+      {filteredLawyers.length != 0 && (
+        <div className="flex justify-center">
+          <ReactPaginate
+            previousLabel="Previous"
+            nextLabel="Next"
+            breakLabel="..."
+            pageCount={Math.ceil(filteredLawyers.length / itemsPerPage)}
+            marginPagesDisplayed={2}
+            pageRangeDisplayed={5}
+            onPageChange={handlePageChange}
+            containerClassName="pagination flex justify-center items-center mt-4"
+            pageClassName="cursor-pointer mx-2 p-2 rounded-full bg-blue-500 text-white hover:bg-blue-700"
+            breakClassName="mx-2 p-2"
+            previousClassName="mx-2 p-2 rounded-full bg-blue-500 text-white hover:bg-blue-700"
+            nextClassName="mx-2 p-2 rounded-full bg-blue-500 text-white hover:bg-blue-700"
+            activeClassName="bg-blue-700"
+          />
+        </div>
+      )}
+      {modalOpen &&
+        (!isLoading ? (
+          // <div className="">
+          //   <div
+          //     className="fixed inset-0 w-full h-full bg-black bg-opacity-60"
+          //     onClick={() => setModalOpen(false)}
+          //   ></div>
+          //   <div className="items-center min-h-screen px-4 py-8">
+          //     <Mainprofile data={openProfile} />
+          //   </div>
+          // </div>
+          <div className="fixed inset-0 z-10 flex justify-center items-center ">
+            <div
+              className="fixed inset-0 w-full h-full bg-black opacity-40"
+              onClick={() => setModalOpen(false)}
+            ></div>
+            <div className="relative  justify-center items-center lg:w-3/4 h-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] p-4 rounded-md overflow-auto">
+              <Mainprofile data={openProfile} />
+            </div>
+          </div>
+        ) : (
+          <div className="fixed inset-0 z-20 overflow-y-auto">
+            <div className="w-full h-screen flex justify-center items-center bg-black bg-opacity-60">
+              <div class="lds-grid">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
+            </div>
+          </div>
+        ))}
     </div>
   );
 }
 
 export default SearchLawyer;
 
-/*
+{
+  /* /*
 <div
             key={index}
             className=" p-4 bg-white rounded-md shadow-md  hover:shadow-xl cursor-pointer  "
@@ -530,4 +577,5 @@ export default SearchLawyer;
               </button>
             </div>
           </div>
-    */
+              */
+}

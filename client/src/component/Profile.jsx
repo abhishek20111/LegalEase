@@ -7,7 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Mainprofile from "./Mainprofile";
-import "./pageLoader.css"
+import "./pageLoader.css";
 export default function Profile() {
   const USER_TYPE = {
     PUBLIC: "Public User",
@@ -19,14 +19,10 @@ export default function Profile() {
 
   const [stateData, setStateData] = useState([]);
   useEffect(() => {
-   
-      const states = State.getStatesOfCountry("IN");
-      setStateData(states);
-  
+    const states = State.getStatesOfCountry("IN");
+    setStateData(states);
   }, []);
 
-
-  
   const CURRENT_USER_TYPE = useSelector((state) => state.userData.role);
   const name = useSelector((state) => state.userData.name);
   const email = useSelector((state) => state.userData.email);
@@ -53,8 +49,8 @@ export default function Profile() {
     avilable: true,
     tag: [],
     address: "",
-    city:"",
-    state:"",
+    city: "",
+    state: "",
     T_rating: "0",
     point_complete: "25",
   };
@@ -122,7 +118,7 @@ export default function Profile() {
       "Healthcare Law",
       "Environment Law",
     ],
-    "Taxes": [
+    Taxes: [
       "Taxes Planning",
       "Tax Compliance",
       "IRS Representation",
@@ -137,7 +133,6 @@ export default function Profile() {
       "Business Documents",
     ],
   };
-
 
   const [ImageChange, setImageChange] = useState("");
 
@@ -235,28 +230,31 @@ export default function Profile() {
 
   const [Profile, setProfile] = useState(false);
   const Pchange = () => {
-    setProfile(true);
+    setProfile(!Profile);
   };
-
 
   return (
     <div className="">
       {/* **************************************************************************************************************** */}
-
-      {/* <Mainprofile
-        name = {name}
-
-             data={newProfile}
-        /> */}
-
       {CURRENT_USER_TYPE !== USER_TYPE.USER ? (
         <div>
-          {console.log("calling main: ", newProfile.updatedUser)}
-          {!newProfile.updatedUser && <div className="w-full h-screen flex justify-center items-center"><div class="lds-grid"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>}
-          {newProfile.updatedUser && (
-            
-            <Mainprofile data={newProfile.updatedUser} />
+          {console.log("calling main: ", newProfile)}
+          {!newProfile.updatedUser && (
+            <div className="w-full h-screen flex justify-center items-center bg-white">
+              <div class="lds-grid">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
+            </div>
           )}
+          {newProfile.updatedUser && <Mainprofile data={newProfile} />}
         </div>
       ) : (
         <>
@@ -436,7 +434,7 @@ export default function Profile() {
                             className="w-full rounded-md focus:ring focus:ri focus:ri dark:border-gray-700 dark:text-gray-900 p-2"
                           />
                         </div>
-                        
+
                         <div className="col-span-full sm:col-span-2">
                           <label for="total_case" className="text-base mb-1">
                             Total Cases
@@ -466,37 +464,6 @@ export default function Profile() {
                             className="w-full rounded-md focus:ring focus:ri focus:ri dark:border-gray-700 dark:text-gray-900 p-2"
                           />
                         </div>
-
-                        <div className="col-span-full sm:col-span-2">
-                          <label for="about" className="text-base mb-1">
-                            About
-                          </label>
-                          <input
-                            type="text"
-                            id="about"
-                            name="about"
-                            value={about}
-                            onChange={onValueChange}
-                            placeholder="About"
-                            className="w-full rounded-md focus:ring focus:ri focus:ri dark:border-gray-700 dark:text-gray-900 p-2"
-                          />
-                        </div>
-
-                        <div className="col-span-full sm:col-span-2">
-                          <label for="achieve" className="text-base mb-1">
-                            Achievements
-                          </label>
-                          <input
-                            type="text"
-                            id="achieve"
-                            name="achievements"
-                            value={achievements}
-                            onChange={onValueChange}
-                            placeholder="Achievemnets"
-                            className="w-full rounded-md focus:ring focus:ri focus:ri dark:border-gray-700 dark:text-gray-900 p-2"
-                          />
-                        </div>
-
                         <div className="col-span-full sm:col-span-2">
                           <label for="number" className="text-base mb-1">
                             Phone Number
@@ -511,7 +478,6 @@ export default function Profile() {
                             className="w-full rounded-md focus:ring focus:ri focus:ri dark:border-gray-700 dark:text-gray-900 p-2"
                           />
                         </div>
-
                         <div className="col-span-full">
                           <label for="address" className="text-base mb-1">
                             Address
@@ -526,45 +492,93 @@ export default function Profile() {
                             className="w-full rounded-md focus:border-gray-300 dark:border-gray-500 text-gray-500 p-2"
                           />
                         </div>
-                        <div className="mb-4 ">
-            <div className="relative p-5 text-white  ">
-              <div className="space-y-2  ">
-                <div className=" mt-20 space-x-4 flex flex-row ">
-                  
-                 
-                  <select
-                  name="state"
-                    className=" rounded hover:transform hover:-translate-y-2 transition-transform hover:bg-blue-700  p-2  w-1/3 font-semibold bg-blue-500 text-white"
-                    
-                    onChange={onValueChange}
-                  >
-                    <option value="">Select state</option>
-                    {stateData.map((state) => (
-                      <option key={state.isoCode} value={state.isoCode}>
-                        {state.name}
-                      </option>
-                    ))}
-                  </select>
 
-                  <select
-                    className=" rounded p-2 w-1/3 hover:transform hover:-translate-y-2 transition-transform hover:bg-blue-700 font-semibold bg-blue-500 text-white "
-                    value={city}
-                    name="city"
-                    onChange={onValueChange}
-                  >
-                    <option value="">Select city</option>
-                    {City.getCitiesOfState("IN", userData.state).map(
-                      (city) => (
-                        <option key={city.name} value={city.name}>
-                          {city.name}
-                        </option>
-                      )
-                    )}
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
+                        <div className="col-span-full sm:col-span-2">
+                          <label for="about" className="text-base mb-1">
+                            About
+                          </label>
+                          <textarea
+                            cols="30"
+                            rows="2"
+                            id="about"
+                            name="about"
+                            value={about}
+                            onChange={onValueChange}
+                            placeholder="Hi my name is Jainy. I am well expirence in ..."
+                            className="w-full rounded-md focus:ring focus:ri focus:ri dark:border-gray-700 dark:text-gray-900 p-2"
+                          />
+                        </div>
+
+                        <div className="col-span-full sm:col-span-2">
+                          <label for="achieve" className="text-base mb-1">
+                            Achievements
+                          </label>
+                          <textarea
+                            cols="30"
+                            rows="2"
+                            id="achieve"
+                            name="achievements"
+                            value={achievements}
+                            onChange={onValueChange}
+                            placeholder="Achievemnets"
+                            className="w-full rounded-md focus:ring focus:ri focus:ri dark:border-gray-700 dark:text-gray-900 p-2"
+                          />
+                        </div>
+
+                        <div className="mb-4 ">
+                          <div className="relative p-5 text-white  ">
+                            <div className="space-y-2  ">
+                              <div className=" mt-20 space-x-4 flex flex-row ">
+                                <label
+                                  htmlFor=""
+                                  className="text-black text-xl font-bold"
+                                >
+                                  State{" "}
+                                </label>
+
+                                <select
+                                  name="state"
+                                  className="w-[9rem] text-black "
+                                  value={state}
+                                  onChange={onValueChange}
+                                >
+                                  <option value="">Select state</option>
+                                  {stateData.map((state) => (
+                                    <option
+                                      key={state.isoCode}
+                                      value={state.isoCode}
+                                      className=""
+                                    >
+                                      {state.name}
+                                    </option>
+                                  ))}
+                                </select>
+                                <label
+                                  htmlFor=""
+                                  className="text-black text-xl font-bold"
+                                >
+                                  City{" "}
+                                </label>
+                                <select
+                                  className=" rounded p-2 w-[9rem]  text-black"
+                                  value={city}
+                                  name="city"
+                                  onChange={onValueChange}
+                                >
+                                  <option value="">Select city</option>
+                                  {City.getCitiesOfState(
+                                    "IN",
+                                    userData.state
+                                  ).map((city) => (
+                                    <option key={city.name} value={city.name}>
+                                      {city.name}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                         <button
                           onClick={(e) => handleSubmit(e)}
                           className="bg-gray-500 m-4 w-[9rem] h-[2rem]  text-white"
@@ -580,115 +594,8 @@ export default function Profile() {
           </div>
         </>
       )}
-
       {/* ************************************************************************************************************************** */}
+       
     </div>
   );
 }
-
-// {CURRENT_USER_TYPE === USER_TYPE.USER ? (
-
-//   ) : (
-//     <>
-//       {newProfile.updatedUser && (
-//         <div className="user-profile">
-//           <h2>User Profile</h2>
-//           <table>
-//             <tbody>
-//               <tr>
-
-//                 <td>ID:</td>
-//                 <td>{newProfile.updatedUser._id}</td>
-
-//               </tr>
-//               <tr>
-//                 <td>T Rating:</td>
-//                 <td>{newProfile.updatedUser.T_rating}</td>
-//               </tr>
-//               <tr>
-//                 <td>Address:</td>
-//                 <td>{newProfile.updatedUser.address}</td>
-//               </tr>
-//               <tr>
-//                 <td>Available:</td>
-//                 <td>
-//                   {newProfile.updatedUser.avilable
-//                     ? "Yes"
-//                     : "No"}
-//                 </td>
-//               </tr>
-//               <tr>
-//                 <td>Created At:</td>
-//                 <td>
-//                   {new Date(
-//                     newProfile.updatedUser.createdAt
-//                   ).toLocaleDateString()}
-//                 </td>
-//               </tr>
-//               {/* <tr>
-//                       <td>Description:</td>
-//                       <td>{newProfile.updatedUser.description}</td>
-//                   </tr> */}
-//               <tr>
-//                 <td>About:</td>
-//                 <td>
-//                   {newProfile.updatedUser.description.about
-//                     ? newProfile.updatedUser.description
-//                         .about[0]
-//                     : ""}
-//                 </td>
-//               </tr>
-//               <tr>
-//                 <td>Achievements:</td>
-//                 <td>
-//                   {newProfile.updatedUser.description
-//                     .achievements
-//                     ? newProfile.updatedUser.description
-//                         .achievements[0]
-//                     : ""}
-//                 </td>
-//               </tr>
-
-//               <tr>
-//                 <td>Experience:</td>
-//                 <td>
-//                   Total Cases:{" "}
-//                   {
-//                     newProfile.updatedUser.experience
-//                       ?.total_case
-//                   }
-//                   , Winning:{" "}
-//                   {newProfile.updatedUser.experience?.winning}
-//                   , Years:{" "}
-//                   {newProfile.updatedUser.experience?.year}
-//                 </td>
-//               </tr>
-//               <tr>
-//                 <td>Phone Number:</td>
-//                 <td>{newProfile.updatedUser.phone_no}</td>
-//               </tr>
-//               <tr>
-//                 <td>Position:</td>
-//                 <td>{newProfile.updatedUser.position}</td>
-//               </tr>
-//               <tr>
-//                 <td>Tag:</td>
-//                 <td>
-//                   {newProfile.updatedUser.tag &&
-//                     newProfile.updatedUser.tag.join(", ")}
-//                 </td>
-//               </tr>
-//               <tr>
-//                 <td>Title:</td>
-//                 <td>{newProfile.updatedUser.title}</td>
-//               </tr>
-//               <tr>
-//                 <td>UID:</td>
-//                 <td>{newProfile.updatedUser.uid}</td>
-//               </tr>
-//             </tbody>
-//           </table>
-//         </div>
-//       )}
-//     </>
-//   )}
