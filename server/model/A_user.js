@@ -2,29 +2,14 @@ const mongoose = require('mongoose');
 const { ObjectId } = mongoose.Schema.Types
 
 const userSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-    },
-    email: {
-        type: String,
-        unique: true,
-        required: true,
-    },
-    password: {
-        type: String,
-        required: true,
-    },
-    role: {
-        type: String,
-        default:'User'
-    },
-    photo: String,
+    ID:{type:ObjectId , ref:"User_SIH"},
     uid: {
         type: String,
-        require: true
+        require: true,
+        unique: true
     },
     phone_no: Number,
+    title : String,
     position: String,
     description: {
         experience: {
@@ -39,17 +24,35 @@ const userSchema = new mongoose.Schema({
     tag: [String],
     address: { type: String },
     T_rating: String,
+   
+    
+
+    // ratings :[
+    //     {
+    //         star:Number,
+    //         postedby:{type: mongoose.Schema.Types.ObjectId,ref:"User_SIH"}
+    //     }
+    // ],
+    // totalrating:[{
+    //     type:String,
+    //     default:0
+    // }],
+    // points: [{
+    //     point_complete: String,
+    // }]
+
+
     review: [{
-        Id: ObjectId,
-        name: String,
+        Id: {type:ObjectId, ref:"User_SIH"},
+        name: String, 
         rating: String,
         description: String
     }],
-    points: [{
-        point_to_complete: String,
-    }]
 
-
-}, { timestamps: true })
-
-module.exports = mongoose.model('A_User_SIH', userSchema);
+   
+    
+     
+    }, { timestamps: true });
+    
+  
+    module.exports = mongoose.model('A_User_SIH', userSchema);
