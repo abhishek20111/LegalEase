@@ -3,6 +3,15 @@ import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 
 export default function Navbar() {
+  const USER_TYPE = {
+    PUBLIC: "Public User",
+    USER: "User",
+    ADMIN: "Admin",
+    MEDIATER: "Mediater",
+    SUPER_ADMIN: "Super Admin",
+  };
+
+  const CURRENT_USER_TYPE = useSelector((state) => state.userData.role);
 
   const isLogin = useSelector((state) => state.userData.isLogin)
 
@@ -16,6 +25,10 @@ export default function Navbar() {
             <div><Link to="/forum">Forum </Link></div>
             <div><Link to="/searchLawer">Search </Link></div>
             <div><Link to="/message">Message </Link></div>
+            {CURRENT_USER_TYPE === USER_TYPE.MEDIATER || CURRENT_USER_TYPE === USER_TYPE.SUPER_ADMIN ?
+              <div><Link to="/manageUser">Mange User </Link></div> : null}
+            {CURRENT_USER_TYPE === USER_TYPE.SUPER_ADMIN ?
+              <div><Link to="/superManageUser">Mange DataBase </Link></div> : null}
             <div><Link to="/logout">Logout </Link></div>
           </>
           :

@@ -62,7 +62,7 @@ export default function Forum() {
                     {commentData && commentData.map((data) => (
                         <div key={data._id}>
                             {/* {console.log(data)} */}
-                            <h3 className='text-amber-700'>{data.ID.name}</h3>
+                            <h3 className='text-amber-700'>{data.ID}</h3>
 
                             {data.comment && data.comment.map((newcomment, index) => (
                                 <div key={index}>{newcomment}</div>

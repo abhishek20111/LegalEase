@@ -96,7 +96,8 @@ export default function MessagePage() {
       try {
         const res = await axios.get(`http://localhost:8080/conversation/message/${currentChat._id}`, axiosConfig);
         setMessages(res.data);
-        console.log(messages);
+        console.log("messages");
+        console.log(res.data);
       } catch (err) {
         console.log(err);
       }
@@ -180,14 +181,14 @@ useEffect(() => {
 
 
   useEffect(() => {
-    console.log(friends);
-    console.log(onlineUsers);
+    // console.log(friends);
+    // console.log(onlineUsers);
     setOnlineFriends(friends.filter((f) => onlineUsers.includes(f.userData._id)));
   }, [friends, onlineUsers]);
 
 
 console.log("data "+ JSON.stringify(friends));
-console.log(friends);
+// console.log(friends);
   return (
     <div className='w-[100vw] h-[100vh] flex gap-x-12'>
 
@@ -199,7 +200,7 @@ console.log(friends);
           {
             conversations.map((c, ind) => (
               <div key={ind} className='flex gap-x-6 '>
-                {/* {console.log(conversations)} */}
+                {console.log(conversations)}
                 <div onClick={() => setCurrentChat(c)}>
                   <Conversation conversation={c} />
                 </div>

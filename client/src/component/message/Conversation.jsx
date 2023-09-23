@@ -24,7 +24,7 @@ export default function Conversation({ conversation }) {
       try {
         const res = await axios.get(`http://localhost:8080/getProfile/${friendId}`, axiosConfig);
         setUserConveData(res.data.userData); // Update userConveData with fetched data
-        // console.log(res.data.userData); // Log the fetched user data
+        console.log(res.data.userData); // Log the fetched user data
       } catch (err) {
         console.log(err);
       }

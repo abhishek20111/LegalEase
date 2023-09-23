@@ -27,7 +27,7 @@ mongoose.connect(`mongodb+srv://abhi:${process.env.DB_PASSWORD}@cluster0.isarath
 // mongoose.connect(`mongodb://localhost:27017`, {
     useNewUrlParser: true,//handle deprecation warnings from the MongoDB driver's default parser. It also provides better support for advanced connection string features like the `srv` protocol, which enables clients to discover MongoDB server instances via DNS records.
     useUnifiedTopology: true//new server discovery and monitoring engine .
-}) 
+})  
     .then(() => {  
         console.log("Successfully connect to MongoDB");
     })

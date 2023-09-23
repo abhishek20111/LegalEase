@@ -51,7 +51,7 @@ const userSchema = new mongoose.Schema({
     points: [{
         point_curr: {type:Number, default:0},
         profile_v:{type:Number, default:0},
-        externalPoint:Number
+        externalPoint:{type:Number, default:0}
     }]
 
 }, { timestamps: true })

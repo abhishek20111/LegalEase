@@ -6,7 +6,10 @@ const userSchema = new mongoose.Schema({
     },
     comment:[{
         type:String,
-        reply:[String],
+        reply:{
+            replyID:{type:ObjectId, ref:"User_SIH"},
+            mes:[String]
+        },
     }],
     likes:[String],
 

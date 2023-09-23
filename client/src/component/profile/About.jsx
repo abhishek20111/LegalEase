@@ -49,8 +49,9 @@ export default function About(props) {
           <div className=" p-4">
             <div className="flex flex-col text-center bg-white">
               <div className="font-medium text-xl m-2 px-1">Specialisations:</div>
+              {console.log(props)}
               {
-                props.data.tag.map((item) => {
+                props.data.updatedUser.tag.map((item) => {
                   return (
                     <div className="m-2 bg-white px-1 rounded-lg font-medium font-Oxygen flex">
                       <img src="" className="w-6" alt="" /> <span className="">{item}</span>

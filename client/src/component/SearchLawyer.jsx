@@ -1,7 +1,12 @@
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+
+import React, { useState, useEffect } from "react";
 import { Country, State, City } from "country-state-city";
+import "./pageLoader.css";
+import bgOverlay from "../assets/overlay.jpg";
 import RatingStars from "react-rating-stars-component";
+import Mainprofile from "./Mainprofile";
+import axios from "axios";
+import ReactPaginate from "react-paginate";
 import {
   FaFacebook,
   FaTwitter,
@@ -14,47 +19,7 @@ import {
   FaBookmark,
 } from "react-icons/fa";
 
-
-export default function SearchLawyer() {
-
-
-  // --------------------------------------------------------
-  const [allProfileData, setAllProfileData] = useState([]);
-  const [shouldRefresh, setShouldRefresh] = useState(true);
-
-  const axiosConfig = {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`
-    }
-  };
-
-  const getAllProfile = async () => {
-
-    try {
-      const response = await axios.get('http://localhost:8080/advanceProfile');
-      setAllProfileData(response.data.A_Data);
-      console.log(allProfileData);
-
-    } catch (error) {
-      console.error(error);
-    }
-
-  };
-
-  const handleRefresh = () => {
-    setShouldRefresh(!shouldRefresh);
-  };
-
-  useEffect(() => {
-    if (shouldRefresh) {
-      getAllProfile();
-      setShouldRefresh(false);
-    }
-  }, [shouldRefresh]);
-
-
-  // --------------------------------------------------
-
+function SearchLawyer() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({
     experience: "",
@@ -68,14 +33,66 @@ export default function SearchLawyer() {
   const [sortBy, setSortBy] = useState("");
   const [sortDirection, setSortDirection] = useState("asc");
   const [bookmarkedLawyers, setBookmarkedLawyers] = useState([]);
+  const [suggestions, setSuggestions] = useState([]);
   const [selectedCountry, setSelectedCountry] = useState("IN");
   const [selectedState, setSelectedState] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
   const [stateData, setStateData] = useState([]);
-  const [suggestions, setSuggestions] = useState([]);
+  /*-------------------------------------------------------------------------------*/
+  const [allProfileData, setAllProfileData] = useState([]);
+  const [shouldRefresh, setShouldRefresh] = useState(true);
+
+  const axiosConfig = {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  };
+
+  const [openProfile, setOpenProfile] = useState();
+  const [modalOpen, setModalOpen] = useState(false);
+  const getAllProfile = async () => {
+    try {
+      const response = await axios.get("http://localhost:8080/advanceProfile");
+      setAllProfileData(response.data.A_Data);
+      console.log("All data:", response.data.A_Data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const [isLoading, setIsLoading] = useState(false);
+  const getOneProfile = async (id) => {
+    console.log("gettingData, ID:", id);
+    setModalOpen(true);
+    try {
+      setIsLoading(true);
+      const response = await axios.get(
+        `http://localhost:8080/getProfile/${id}`,
+        axiosConfig
+      );
+      console.log("data recieved:", response);
+      setOpenProfile(response.data);
+      console.log("props data ", openProfile);
+      setIsLoading(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleRefresh = () => {
+    setShouldRefresh(!shouldRefresh);
+  };
+
+  useEffect(() => {
+    if (shouldRefresh) {
+      getAllProfile();
+      setShouldRefresh(false);
+    }
+  }, [shouldRefresh]);
+
+  /*-------------------------------------------------------------------------------*/
   useEffect(() => {
     if (selectedCountry) {
-      const states = State.getStatesOfCountry(selectedCountry);
+      const states = State.getStatesOfCountry("IN");
       setStateData(states);
     }
   }, [selectedCountry]);
@@ -100,7 +117,7 @@ export default function SearchLawyer() {
   };
   const handleCountryChange = (value) => {
     console.log(value);
-    setSelectedCountry('IN');
+    setSelectedCountry("IN");
   };
 
   const handleStateChange = (value) => {
@@ -111,6 +128,7 @@ export default function SearchLawyer() {
     setSelectedCity(value);
     setSearchQuery(value);
   };
+
   const handleBookmarkToggle = (lawyerId) => {
     if (bookmarkedLawyers.includes(lawyerId)) {
       const updatedBookmarks = bookmarkedLawyers.filter(
@@ -140,7 +158,8 @@ export default function SearchLawyer() {
     return "";
   };
 
-  const filteredLawyers = allProfileData.filter((lawyer) => {
+  const filteredLawyers = allProfileData
+    .filter((lawyer) => {
       const queryWords = searchQuery.toLowerCase().split(" ");
 
       return (
@@ -152,7 +171,7 @@ export default function SearchLawyer() {
         ) &&
         (!filters.experience ||
           lawyer.description?.experience?.year?.$numberInt >=
-          filters.experience) &&
+            filters.experience) &&
         (!filters.rating || lawyer.T_rating >= filters.rating) &&
         (!filters.reviews || lawyer.review?.length >= filters.reviews) &&
         (!filters.selectedCity ||
@@ -178,39 +197,72 @@ export default function SearchLawyer() {
       return 0;
     });
 
+  const itemsPerPage = 8;
+
+  // Create state to track the current page
+  const [currentPage, setCurrentPage] = useState(0);
+
+  // Calculate the start and end indices for the current page
+  const startIndex = currentPage * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+
+  // Get the lawyers for the current page
+  const currentLawyers = filteredLawyers.slice(startIndex, endIndex);
+
+  // Handle page change
+  const handlePageChange = (selectedPage) => {
+    setCurrentPage(selectedPage.selected);
+  };
+
   return (
-    <div>
-
-      <div>
-        {allProfileData.map((profile) => (
-          <div key={profile._id}>
-            <h2>{profile.ID.name}</h2>
-            <p>Email: {profile.ID.email}</p>
-            <p>Phone Number: {profile.phone_no}</p>
-            <p>Title: {profile.title}</p>
-            <p>Position: {profile.position}</p>
-            <p>Available: {profile.avilable ? "Yes" : "No"}</p>
-            <p>Tags: {profile.tag.join(', ')}</p>
-            <p>Address: {profile.address}</p>
-            <p>Rating: {profile.T_rating}</p>
-            <p>Review Count: {profile.review.length}</p>
-            <p>Points: {profile.points.length}</p>
-
+    <div className="bg-blue-50 min-h-screen  ">
+      <div
+        className=" mb-5 py-10 flex flex-col justify-center"
+        style={{ backgroundImage: `url(${bgOverlay})` }}
+      >
+        <div className="flex py-5 flex-col items-center justify-center  ">
+          <div className="flex justify-start w-[70%] font-thin font-Oxygen text-white">
+            <p className="px-5 text-3xl">
+              Let's get{" "}
+              <span className=" font-semibold italic">Started...</span>
+            </p>
           </div>
-        ))}
-      </div>
-
-      <div className="bg-blue-100` min-h-screen ">
-        <div className="bg-blue-900  mb-5  ">
-          <div className="flex  justify-center items-center ">
-            <div className="mb-4 ">
-              <div className="relative p-5 text-white  ">
+          <input
+            type="text "
+            placeholder=" Search here "
+            className="p-2 mt-3 justify-center items-center border font-semibold rounded-full w-[70%]  "
+            value={searchQuery}
+            onChange={handleSearchChange}
+            // onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {suggestions.length > 0 && (
+            <div className="absolute z-10 bg-white  w-1/2 rounded-md shadow-md">
+              <ul>
+                {suggestions.map((suggestion, index) => (
+                  <li
+                    key={index}
+                    className="p-2 cursor-pointer hover:bg-gray-200"
+                    onClick={() => {
+                      setSearchQuery(suggestion.name) || setSuggestions([]);
+                    }}
+                  >
+                    {suggestion.name}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <div className="flex justify-between items-center w-[70%]">
+            <div className="">
+              <div className="text-white  ">
                 <div className="space-y-2  ">
-                  <div className=" mt-20 space-x-4 flex flex-row ">
+                  <div className=" space-x-1 flex flex-row ">
+                    {/* </div> */}
 
+                    {/* <div className="flex-row "> */}
 
                     <select
-                      className=" rounded hover:transform hover:-translate-y-2 transition-transform hover:bg-blue-700  p-2  w-1/3 font-semibold bg-blue-500 text-white"
+                      className="rounded-md py-2 w-[110px] font-semibold text-black"
                       value={selectedState}
                       onChange={(e) => handleStateChange(e.target.value)}
                     >
@@ -226,74 +278,47 @@ export default function SearchLawyer() {
                     {/* <div className="mb-4 "> */}
 
                     <select
-                      className=" rounded p-2 w-1/3 hover:transform hover:-translate-y-2 transition-transform hover:bg-blue-700 font-semibold bg-blue-500 text-white "
+                      className=" rounded-md py-2 w-[110px] font-semibold text-black "
                       value={selectedCity}
                       onChange={(e) => handleCityChange(e.target.value)}
                     >
                       <option value="">Select city</option>
-                      {City.getCitiesOfState(selectedCountry, selectedState).map(
-                        (city) => (
-                          <option key={city.name} value={city.name}>
-                            {city.name}
-                          </option>
-                        )
-                      )}
+                      {City.getCitiesOfState(
+                        selectedCountry,
+                        selectedState
+                      ).map((city) => (
+                        <option key={city.name} value={city.name}>
+                          {city.name}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </div>
               </div>
             </div>
-            <div className="relative flex-1 p-8  ">
-              <input
-                type="text "
-                placeholder=" Search here "
-                className="p-2 my-5 justify-center items-center border font-semibold rounded-full w-1/2   bg- opacity-40  "
-                value={searchQuery}
-                onChange={handleSearchChange}
-              // onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              {suggestions.length > 0 && (
-                <div className="absolute z-10 bg-white  w-1/2 rounded-md shadow-md">
-                  <ul>
-                    {suggestions.map((suggestion, index) => (
-                      <li
-                        key={index}
-                        className="p-2 cursor-pointer hover:bg-gray-200"
-                        onClick={() => {
-                          setSearchQuery(suggestion.name) || setSuggestions([]);
-                        }}
-                      >
-                        {suggestion.name}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-            <div className="mt-20 flex items-center space-x-4 text-white p-4">
+
+            <div className="flex items-center space-x-1 text-white p-4">
+              <p>Sort:</p>
               <button
-                className={`bg-blue-500 hover:transform hover:-translate-y-2 transition-transform font-semibold text-white px-4 py-2 hover:bg-blue-700  rounded-md ${sortBy === "experience" ? "bg-blue-600" : ""
-                  }`}
+                className={`font-semibold text-black px-4 py-2 bg-white rounded-full`}
                 onClick={() => {
                   handleSortChange({ target: { value: "experience" } });
                   handleSortDirectionToggle();
                 }}
               >
-                Sort by Experience {getSortIcon("experience")}
+                Experience {getSortIcon("experience")}
               </button>
               <button
-                className={`bg-blue-500 hover:transform hover:-translate-y-2 transition-transform font-semibold text-white px-4 py-2 hover:bg-blue-700  rounded-md ${sortBy === "rating" ? "bg-blue-600" : ""
-                  }`}
+                className={`font-semibold text-black px-4 py-2 bg-white rounded-full`}
                 onClick={() => {
                   handleSortChange({ target: { value: "T_rating" } });
                   handleSortDirectionToggle();
                 }}
               >
-                Sort by Ratings {getSortIcon("T_rating")}
+                Ratings {getSortIcon("T_rating")}
               </button>
               <button
-                className={`bg-blue-500  hover:transform hover:-translate-y-2 transition-transform font-semibold text-white px-4 hover:bg-blue-700  py-2 rounded-md ${sortBy === "price" ? "bg-blue-600" : ""
-                  }`}
+                className={`font-semibold text-black px-4 py-2 bg-white rounded-full`}
                 onClick={() => {
                   handleSortChange({ target: { value: "price" } });
                   handleSortDirectionToggle();
@@ -304,116 +329,291 @@ export default function SearchLawyer() {
             </div>
           </div>
         </div>
-        <div className=" grid grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
-          {filteredLawyers.map((lawyer, index) => (
+      </div>
+      {filteredLawyers.length == 0 && (
+        <div className="w-full h-screen flex justify-center items-center">
+          <div class="lds-grid">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+        </div>
+      )}
+      <div className=" grid grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
+        {currentLawyers.map((lawyer, index) => (
+          <>
             <div
               key={index}
-              className="  bg-white-100 hover:transform hover:-translate-y-2 transition-transform rounded-md shadow-md  hover:shadow-xl cursor-pointer  "
+              class="flex items-center justify-center text-center  w-[100%]"
             >
-              <div className="relative flex justify-center items-center  bg-blue-400">
-                {lawyer.photo && (
-                  <div className="w-1/2 h-full flex items-center justify-center">
-                    <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white-800 mt-5 ">
-                      <img
-                        src={lawyer.photo}
-                        alt={`${lawyer.name}'s Photo`}
-                        className="w-full  h-full  object-cover rounded-md mb-4"
-                      />
+              {console.log(lawyer)}
+              <div class="flex flex-col items-center justify-center   w-full">
+                <div class="flex flex-col p-2 m-2 w-full">
+                  <div class="flex items-center justify-center md:flex-row   flex-col space-x-4 space-y-4 p-2">
+                    <div class="flex-col px-6 py-2 shadow-xl bg-white rounded-2xl hover:scale-105 w-full">
+                      <div class="h-40 m-auto w-40 border-2 border-cyan-500 rounded-full overflow-hidden ">
+                        <img
+                          src={lawyer.ID.photo}
+                          alt=""
+                          class="object-cover"
+                        />
+                      </div>
+
+                      <div class="text-lg font-medium text-stone-600 cursor-pointer hover:text-stone-400">
+                        {lawyer.ID.name}
+                      </div>
+                      <div class="italic text-gray-500 text-sm">{lawyer.T_rating}⭐</div>
+                      <div class="italic text-gray-500 text-sm">
+                        {lawyer.position}
+                      </div>
+                      <div class="italic text-gray-500 text-sm">
+                        {lawyer.title}
+                      </div>
+
+                      <div class="italic text-gray-500 text-sm">
+                        {lawyer.city}
+                      </div>
+                      <div class="flex my-2 justify-between">
+                        <div>
+                          <img src=""></img>
+                        </div>
+                        <div>
+                          <button
+                            onClick={() => {
+                              getOneProfile(lawyer.ID._id);
+                            }}
+                            className="p-2 font-semibold bg-blue-600 text-white rounded-xl"
+                          >
+                            Connect
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                )}
-              </div>
-              <div className="text-center  h-1/2 flex flex-col justify-center">
-                <h2 className="text-lg font-serif font-extrabold">
-                  {lawyer.name || "No Name"}
-                </h2>
-                {/* <p className="text-gray-600 font-semibold">{lawyer.title || 'No title'}</p> */}
-                {/* <p className="text-gray-600 font-semibold">{lawyer.position || 'No Position'}</p> */}
-
-                <div className="flex items-center justify-center text-gray-600 font-semibold ">
-                  <FaUserTie className="mr-2" />
-                  {lawyer.title || "No title"}
                 </div>
-                <div className=" flex items-center justify-center text-gray-600 font-semibold">
-                  <FaGraduationCap className="mr-2" />
-                  {lawyer.position || "No position"}
-                </div>
-                {/* <p className="text-gray-600 font-semibold">{lawyer.city || 'No City'}</p> */}
-                <div className="flex items-center justify-center text-gray-600 font-semibold">
-                  <FaMapMarkerAlt className="mr-2" />
-                  {lawyer.city || "No City"}
-                </div>
-                {/* <p className="text-gray-600 font-semibold">Hourly Rate: ${lawyer.hourlyRate || 'N/A'}</p> */}
-
-                <div className="flex justify-center items-center text-yellow-400">
-                  <RatingStars
-                    count={5}
-                    size={25}
-                    value={parseFloat(lawyer.T_rating) || 0}
-                    edit={false}
-                  />
-                </div>
-                {/* <p className="text-gray-600 font-semibold ">{lawyer.price || 'No title'}</p> */}
-                {/* <div className="flex items-center justify-center text-gray-600 font-semibold">
-    <FaDollarSign className="mr-2" />
-    {lawyer.price || 'No Price'}
-  </div> */}
-              </div>
-              <div className=" hover:transform hover:-translate-y-2 transition-transform flex justify-center space-x-2 h-2 ">
-                {lawyer.socialMedia && lawyer.socialMedia.facebook && (
-                  <a
-                    href={lawyer.socialMedia.facebook}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <FaFacebook size={24} color="#1877f2" />
-                  </a>
-                )}
-                {lawyer.socialMedia && lawyer.socialMedia.twitter && (
-                  <a
-                    href={lawyer.socialMedia.twitter}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <FaTwitter size={24} color="#1da1f2" />
-                  </a>
-                )}
-                {lawyer.socialMedia && lawyer.socialMedia.linkedin && (
-                  <a
-                    href={lawyer.socialMedia.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <FaLinkedin size={24} color="#2867B2" />
-                  </a>
-                )}
-                {lawyer.socialMedia && lawyer.socialMedia.instagram && (
-                  <a
-                    href={lawyer.socialMedia.instagram}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <FaInstagram size={24} color="#E4405F" />
-                  </a>
-                )}
-              </div>
-
-              <div className="mt-1  ">
-                <button className="bg-blue-900 hover:bg-blue-600 hover:transform hover:-translate-y-2 transition-transform text-white font-semibold font-serif  px-4 py-2 mb-20 mr-2  rounded-full float-right">
-                  Connect
-                </button>
-                <FaBookmark
-                  size={24}
-                  color={
-                    bookmarkedLawyers.includes(lawyer._id) ? "#1f618d" : "#999"
-                  } // Set the color based on bookmark status
-                  onClick={() => handleBookmarkToggle(lawyer._id)} // Toggle bookmark status on click
-                />
               </div>
             </div>
-          ))}
-        </div>
+            <script src="https://cdn.tailwindcss.com"></script>
+            <script src="https://use.fontawesome.com/03f8a0ebd4.js"></script>
+            <script
+              type="module"
+              src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"
+            ></script>
+            <script
+              nomodule
+              src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"
+            ></script>
+                
+          </>
+        ))}
       </div>
+      {filteredLawyers.length != 0 && (
+        <div className="flex justify-center">
+          <ReactPaginate
+            previousLabel="Previous"
+            nextLabel="Next"
+            breakLabel="..."
+            pageCount={Math.ceil(filteredLawyers.length / itemsPerPage)}
+            marginPagesDisplayed={2}
+            pageRangeDisplayed={5}
+            onPageChange={handlePageChange}
+            containerClassName="pagination flex justify-center items-center mt-4"
+            pageClassName="cursor-pointer mx-2 p-2 rounded-full bg-blue-500 text-white hover:bg-blue-700"
+            breakClassName="mx-2 p-2"
+            previousClassName="mx-2 p-2 rounded-full bg-blue-500 text-white hover:bg-blue-700"
+            nextClassName="mx-2 p-2 rounded-full bg-blue-500 text-white hover:bg-blue-700"
+            activeClassName="bg-blue-700"
+          />
+        </div>
+      )}
+      {modalOpen &&
+        (!isLoading ? (
+          // <div className="">
+          //   <div
+          //     className="fixed inset-0 w-full h-full bg-black bg-opacity-60"
+          //     onClick={() => setModalOpen(false)}
+          //   ></div>
+          //   <div className="items-center min-h-screen px-4 py-8">
+          //     <Mainprofile data={openProfile} />
+          //   </div>
+          // </div>
+          <div className="fixed inset-0 z-10 flex justify-center items-center ">
+            <div
+              className="fixed inset-0 w-full h-full bg-black opacity-40"
+              onClick={() => setModalOpen(false)}
+            ></div>
+            <div className="relative  justify-center items-center lg:w-3/4 h-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] p-4 rounded-md overflow-auto">
+              <Mainprofile data={openProfile} />
+            </div>
+          </div>
+        ) : (
+          <div className="fixed inset-0 z-20 overflow-y-auto">
+            <div className="w-full h-screen flex justify-center items-center bg-black bg-opacity-60">
+              <div class="lds-grid">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
+            </div>
+          </div>
+        ))}
     </div>
   );
 }
+
+export default SearchLawyer;
+
+{
+  /* /*
+<div
+            key={index}
+            className=" p-4 bg-white rounded-md shadow-md  hover:shadow-xl cursor-pointer  "
+          >
+            <div className="relative flex justify-center items-center ">
+              {lawyer.photo && (
+                <div className="w-1/2 h-full flex items-center justify-center">
+                  <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-blue-900  ">
+                    <img
+                      src={lawyer.photo}
+                      alt={`${lawyer.name}'s Photo`}
+                      className="w-full  h-full  object-cover rounded-md mb-4"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="text-center  h-1/2 flex flex-col justify-center">
+              <h2 className="text-lg font-bold">{lawyer.name || "No Name"}</h2>
+              <p className="text-gray-600 font-semibold">
+                {lawyer.title || "No title"}
+              </p>
+              <p className="text-gray-600 font-semibold">
+                {lawyer.position || "No Position"}
+              </p>
+              <p className="text-gray-600 font-semibold">
+                {lawyer.city || "No City"}
+              </p>
+              <p className="text-gray-600 font-semibold">
+                Hourly Rate: ${lawyer.hourlyRate || "N/A"}
+              </p>
+              <div className="flex justify-center items-center text-yellow-400">
+                <RatingStars
+                  count={5}
+                  size={24}
+                  value={parseFloat(lawyer.T_rating) || 0}
+                  edit={false}
+                />
+              </div>
+              <p className="text-gray-600 font-semibold ">
+                {lawyer.price || "No title"}
+              </p>
+            </div>
+            <div className=" mt-2 ">
+              <button className="bg-blue-900 hover:bg-blue-600 text-white px-4 py-2  rounded-full float-right">
+                Connect
+              </button>
+            </div>
+          </div>
+              */
+}
+
+{
+  /* <div
+            key={index}
+            className="  bg-white-100 hover:transform hover:-translate-y-2 transition-transform rounded-md shadow-md  hover:shadow-xl cursor-pointer  "
+          >
+            <div className="relative flex justify-center items-center  bg-blue-400">
+              {lawyer.photo && (
+                <div className="w-1/2 h-full flex items-center justify-center">
+                  <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white-800 mt-5 ">
+                    <img
+                      src={lawyer.photo}
+                      alt={`${lawyer.name}'s Photo`}
+                      className="w-full  h-full  object-cover rounded-md mb-4"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="text-center  h-1/2 flex flex-col justify-center">
+              <h2 className="text-lg font-serif font-extrabold">
+                {lawyer.name || "No Name"}
+              </h2>
+              {/* <p className="text-gray-600 font-semibold">{lawyer.title || 'No title'}</p> */
+}
+{
+  /* <p className="text-gray-600 font-semibold">{lawyer.position || 'No Position'}</p> */
+}
+
+// <div className="flex items-center justify-center text-gray-600 font-semibold ">
+//   <FaUserTie className="mr-2" />
+//   {lawyer.title || "No title"}
+// </div>
+// <div className=" flex items-center justify-center text-gray-600 font-semibold">
+//   <FaGraduationCap className="mr-2" />
+//   {lawyer.position || "No position"}
+// </div>
+{
+  /* <p className="text-gray-600 font-semibold">{lawyer.city || 'No City'}</p> */
+}
+{
+  /* <div className="flex items-center justify-center text-gray-600 font-semibold">
+  <FaMapMarkerAlt className="mr-2" />
+  {lawyer.city || "No City"}
+</div>; */
+}
+{
+  /* <p className="text-gray-600 font-semibold">Hourly Rate: ${lawyer.hourlyRate || 'N/A'}</p> */
+}
+
+{
+  /* <div className="flex justify-center items-center text-yellow-400">
+  <RatingStars
+    count={5}
+    size={25}
+    value={parseFloat(lawyer.T_rating) || 0}
+    edit={false}
+  />
+</div>; */
+}
+{
+  /* <p className="text-gray-600 font-semibold ">{lawyer.price || 'No title'}</p> */
+}
+{
+  /* <div className="flex items-center justify-center text-gray-600 font-semibold">
+    <FaDollarSign className="mr-2" />
+    {lawyer.price || 'No Price'}
+  </div> */
+}
+//   </div>
+//   <div className="mt-1  ">
+//     <button
+//       onClick={() => {
+//         getOneProfile(lawyer.ID._id);
+//       }}
+//       className="bg-blue-900 hover:bg-blue-600 hover:transform hover:-translate-y-2 transition-transform text-white font-semibold font-serif  px-4 py-2 mb-20 mr-2  rounded-full float-right"
+//     >
+//       Connect
+//     </button>
+//     <FaBookmark
+//       size={24}
+//       color={
+//         bookmarkedLawyers.includes(lawyer.ID._id) ? "#1f618d" : "#999"
+//       } // Set the color based on bookmark status
+//       onClick={() => handleBookmarkToggle(lawyer.ID._id)} // Toggle bookmark status on click
+//     />
+//   </div>
+// </div> */}
+

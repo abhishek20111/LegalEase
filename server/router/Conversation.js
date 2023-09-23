@@ -12,13 +12,16 @@ const authentication = require('../middleware/middleware')
 
 router.post("/", authentication, async (req, res) => {
     console.log("conversation/");
-    
+    console.log(req.body.receiverId);
     const newConversation = new Conversation({
         members: [req.user._id.toString(), req.body.receiverId],
     });
+    
  
     try {
         const savedConversation = await newConversation.save();
+
+        // const 
         res.status(200).json(savedConversation);
     } catch (err) {
         res.status(500).json(err);
@@ -61,7 +64,7 @@ router.post("/message/", async (req, res) => {
     }
 });
 
-//get
+
 
 router.get("/message/:conversationId", async (req, res) => {
     console.log("message get id "+req.params.conversationId);

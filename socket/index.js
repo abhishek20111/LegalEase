@@ -20,6 +20,36 @@ const getUser = (userId) => {
 };
 
 
+const sendMessageToUser = async ({ senderId, receiverId, text }) => {
+    const user = getUser(receiverId);
+
+    if (user) {
+        // User is online, send the message immediately
+        io.to(user.socketId).emit("getMessage", {
+            senderId,
+            text,
+        });
+    } else {
+        // User is offline, wait for the user to come online
+        await new Promise((resolve) => {
+            io.once("connection", (socket) => {
+                if (socket.id === receiverId) {
+                    resolve(socket);
+                }
+            });
+        });
+
+        // User is now online, send the message
+        const onlineUser = getUser(receiverId);
+        if (onlineUser) {
+            io.to(onlineUser.socketId).emit("getMessage", {
+                senderId,
+                text,
+            });
+        }
+    }
+};
+
 io.on("connection", (socket) => {
     //when ceonnect
     console.log("a user connected.");
@@ -34,12 +64,13 @@ io.on("connection", (socket) => {
  
     //send and get message
     socket.on("sendMessage", ({ senderId, receiverId, text }) => {
-        const user = getUser(receiverId);
-        console.log("user "+ senderId, receiverId, text);
-        io.to(user.socketId).emit("getMessage", {
-            senderId,
-            text,
-        });
+        // const user = getUser(receiverId);
+        // console.log("user "+ senderId, receiverId, text);
+        // io.to(user.socketId).emit("getMessage", {
+        //     senderId,
+        //     text,
+        // });
+        sendMessageToUser({ senderId, receiverId, text });
     });
     
 

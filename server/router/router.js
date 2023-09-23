@@ -149,7 +149,6 @@ router.post('/updatePro', authentication, async (req, res) => {
 
 
 
-
 router.post('/updateProfilePic', authentication, async (req, res) => {
     console.log("updateProfilePic");
     try {
@@ -177,22 +176,23 @@ router.get('/getProfile/:id', authentication, async (req, res) => {
 
     console.log("getProfile");
     const id = req.params.id;
-    console.log("getProfile id "+id);
+    console.log("getProfile id " + id);
     try {
         let responseData = {};
-        if (req.user.role === "Admin") {
 
-            const updatedUser = await A_User.findOne({ ID: id });
+        const updatedUser = await A_User.findOne({ ID: id })
+            .populate('review.Id', '-password')
+            .exec();
 
-            if (!updatedUser) {
-                return res.status(404).json({ error: 'User not found' });
-            }
-            responseData.updatedUser = updatedUser;
+        if (!updatedUser) {
+            return res.status(404).json({ error: 'User not found' });
         }
+        responseData.updatedUser = updatedUser;
+
         const userData = await User.findOne({ _id: id })
         responseData.userData = userData;
-        // console.log("new data "+JSON.stringify(responseData));
-        // console.log(responseData);
+        console.log("new data " + JSON.stringify(responseData));
+        console.log(responseData);
         res.status(200).json(responseData);
     } catch (error) {
         console.log(error.message); // Log the error message for debugging
@@ -204,13 +204,42 @@ router.get('/advanceProfile', async (req, res) => {
     console.log("advanceProfile");
     try {
         const A_Data = await A_User.find().populate('ID', '-password');
-        console.log("A_Data:", A_Data); 
-        res.status(200).json({A_Data})
+        // console.log("A_Data:", A_Data);
+        res.status(200).json({ A_Data })
     } catch (error) {
-        console.log(error.message); 
+        console.log(error.message);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
+router.get('/getAllUserProfile', authentication, async (req, res) => {
+    console.log("getAllUserProfile");
+    try {
+        if (req.user.role != "Super Admin") {
+            return res.status(404).json({ message: "You Are not Head" });
+        }
+
+        let responseData = {};
+
+        // Fetch A_User_Data and populate the 'ID' field
+        const A_User_Data = await A_User.find().populate({
+            path: 'ID',
+            select: '-password', // Exclude the password field
+        });
+
+        responseData.A_User_Data = A_User_Data;
+
+        // Fetch N_User without populating
+        const N_User = await User.find();
+        responseData.N_User = N_User;
+
+        res.status(200).json(responseData);
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 
 router.post('/comment', authentication, async (req, res) => {
     console.log('comment');
@@ -254,9 +283,74 @@ router.get('/getComment', authentication, async (req, res) => {
 })
 
 
-router.put('/toggleAvailability', authentication, async (req, res) => {
+router.post('/changeRole/:userId', async (req, res) => {
+    const userId = req.params.userId;
+    const newRole = req.body.newRole; // Assuming you send the new role in the request body
+
     try {
-        
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Set the new role
+        user.role = newRole;
+        await user.save();
+
+        return res.status(200).json({ message: 'User role changed successfully' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+router.post('/verifyUser/:id', async (req, res) => {
+    console.log("VerifyUser " + req.params.id);
+    const userId = req.params.id;
+
+    try {
+        const user = await A_User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Check if the 'points' array exists, and if not, initialize it
+        if (!user.points) {
+            user.points = [{ point_curr: 0, profile_v: 0, externalPoint: 0 }];
+        }
+
+        // Set the verifyUser field to true
+        user.verifyUser = true;
+
+        if (user.points.length === 0) {
+            // If it doesn't exist, create it with a default value of 0
+            user.points.push({
+              point_curr: 0,
+              profile_v: 0,
+              externalPoint: 0
+            });
+          }
+      
+          // Add 250 points to the profile_v field
+          user.points[0].profile_v += 250;
+
+        await user.save();
+
+        return res.status(200).json({ message: 'User verified successfully' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
+
+router.put('/toggleAvailability', authentication, async (req, res) => {
+    console.log("toggleAvailability");
+    try {
+
         const userId = req.user._id; // Assuming you have a user ID in req.user.id
         const user = await A_User.findOne({ ID: userId });
 
@@ -277,6 +371,43 @@ router.put('/toggleAvailability', authentication, async (req, res) => {
     }
 });
 
- 
+
+router.post('/review', authentication, async (req, res) => {
+    const { ID, rating, description } = req.body;
+
+    if (!ID || !rating || !description) {
+        return res.status(422).json({ error: "Please fill in all the required details." });
+    }
+
+    console.log(ID + " " + rating + " " + description);
+
+    try {
+        // Find the user by their _id and update the review array
+        const updatedUser = await A_User.findOneAndUpdate(
+            { ID },
+            {
+                $push: {
+                    review: {
+                        Id: req.user._id,
+                        name: req.user.name,
+                        rating,
+                        description,
+                    },
+                },
+            },
+            { new: true }
+        );
+        updatedUser.save()
+        if (updatedUser) {
+            res.status(201).json({ message: 'Review added successfully', user: updatedUser });
+        } else {
+            res.status(404).json({ error: 'User not found' });
+        }
+    } catch (err) {
+        console.log("Error: " + err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 
 module.exports = router;
