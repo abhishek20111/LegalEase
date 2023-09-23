@@ -13,6 +13,8 @@ import Profile from './component/Profile';
 import Forum from './component/Forum';
 import Review from './component/Review';
 import Starrating from './component/Starrating';
+import SearchLawyer from './component/SearchLawyer';
+import Forum2 from './component/Forum2';
 
 export default function App() {
 
@@ -46,8 +48,10 @@ export default function App() {
         <Route path='/logout' element={<PublicElement><Logout /></PublicElement>} />
         <Route path='/' element={<PublicElement><Home /></PublicElement>} />
         <Route path='/forum' element={<PublicElement><Forum /></PublicElement>} />
-        <Route path='/review' element={<PublicElement><Review /></PublicElement>} />
+        <Route path='/review/:idU' element={<PublicElement><Review /></PublicElement>} />
         <Route path='/starrating' element={<PublicElement><Starrating /></PublicElement>} />
+        <Route path='/searchLawyer' element={<PublicElement><SearchLawyer /></PublicElement>} />
+        <Route path='/forum2' element={<PublicElement><Forum2 /></PublicElement>} />
       </Routes>
     )
   }

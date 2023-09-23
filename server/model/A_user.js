@@ -25,22 +25,6 @@ const userSchema = new mongoose.Schema({
     address: { type: String },
     T_rating: String,
    
-    
-
-    // ratings :[
-    //     {
-    //         star:Number,
-    //         postedby:{type: mongoose.Schema.Types.ObjectId,ref:"User_SIH"}
-    //     }
-    // ],
-    // totalrating:[{
-    //     type:String,
-    //     default:0
-    // }],
-    // points: [{
-    //     point_complete: String,
-    // }]
-
 
     review: [{
         Id: {type:ObjectId, ref:"User_SIH"},

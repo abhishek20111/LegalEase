@@ -12,4 +12,4 @@ const userSchema = new mongoose.Schema({
 
 }, { timestamps: true })
 
-module.exports = mongoose.model('Forum_User_SIH', userSchema);
+module.exports = mongoose.model('forums', userSchema);

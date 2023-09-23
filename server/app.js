@@ -21,7 +21,7 @@ app.use(cors({ credentials: true }));
 // app.use(cors({ origin: origin, credentials: true }));//provided by the `cors` package for enabling Cross-Origin Resource Sharing (CORS) in an Express app, CORS is a mechanism that allows a web page to make requests to a different domain 
  
 
-mongoose.connect(`mongodb+srv://dimpy:${process.env.DB_PASSWORD}@cluster0.glj5682.mongodb.net/?retryWrites=true&w=majority`, { 
+mongoose.connect(`mongodb+srv://abhi:${process.env.DB_PASSWORD}@cluster0.isarath.mongodb.net/?retryWrites=true&w=majority`, { 
 // mongoose.connect(`mongodb://localhost:27017`, {
    
     useNewUrlParser: true,//handle deprecation warnings from the MongoDB driver's default parser. It also provides better support for advanced connection string features like the `srv` protocol, which enables clients to discover MongoDB server instances via DNS records.
