@@ -572,7 +572,7 @@ const sortedData = sortByPointsSum(data);
   return (
    <>
    
-    <div className="h-screen flex justify-center">
+    <div className="h-screen mt-8 flex justify-center">
    
   <div className="flex flex-col max-w-7xl justify-center items-center">
   <div className='text-4xl m-2 tracking-wide  font-serif font-bold'>About Our Winners</div>

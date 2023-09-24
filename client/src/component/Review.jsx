@@ -31,16 +31,17 @@ export default function Review(props) {
   };
 
   const handleSubmit = async () => {
+    console.log(userData);
     try {
       const response = await axios.post(
         'http://localhost:8080/review', userData, axiosConfig);
         notify1(response.data.message)
-
-      if (data.status === 422 || !data) {
-        console.log(data.error);
-      } else {
-        navigate('/profile');
-      }
+        navigate('/');
+        
+      // if (response.status === 422 || !response) {
+      //   console.log(response.error);
+      // } else {
+      // }
     } catch (error) {
       console.log(error);
     }

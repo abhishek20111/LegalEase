@@ -8,6 +8,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Mainprofile from "./Mainprofile";
 import "./pageLoader.css";
+import proSvg from "../assets/pro.png"
 export default function Profile() {
   const USER_TYPE = {
     PUBLIC: "Public User",

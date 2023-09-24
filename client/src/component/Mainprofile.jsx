@@ -2,9 +2,10 @@
 import React, { useEffect, useState } from "react";
 import About from "./profile/About";
 import Review from "./profile/Review";
+import GiveReview from "./Review"
 import Contact from "./profile/Contact";
 import Achievements from "./profile/Achievements";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useSelector } from "react-redux";
 
@@ -237,6 +238,7 @@ export default function Mainprofile(props) {
             {first == 1 && <Achievements data={props.data} />}
             {first === 2 && <Review data={props.data} />}
             {first === 3 && <Contact data={props.data} />}
+            
           </div>
 
           {/* ************************************************************************* */}
@@ -269,6 +271,14 @@ export default function Mainprofile(props) {
             >
               <button className="outline-none border-none">Contact</button>
             </div>
+            <Link to={`/review/${props.data.userData._id}`}>
+            <div
+              className="mb-1 border:none outline:none hover:cursor-pointer sm:px-12 font-medium active:bg-gray-200 text-lg p-2 text-[#004b23]"
+              
+              >
+              <button className="outline-none border-none">Give Review</button>
+            </div>
+              </Link>
           </div>
         </div>
       )}

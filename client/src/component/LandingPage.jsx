@@ -9,6 +9,7 @@ import Section1 from "./HomePage/Section1";
 import Section2 from "./HomePage/Section2";
 import Section3 from "./HomePage/Section3";
 import Footer from "./HomePage/Footer";
+import { Link } from "react-router-dom";
 
 export default function LandingPage() {
   const [imageSrc, setImageSrc] = useState(lawyer); // Initial image source
@@ -50,6 +51,9 @@ export default function LandingPage() {
           <button className="mt-2 bg-gray-500 rounded-md text-white font-semibold text-3xl font-sans border px-2 py-1">
             Forum
           </button>
+          <Link to={'/leaderboard'}  className="mt-2 bg-gray-500 rounded-md text-white font-semibold text-xl font-sans border p-2">
+            Leader Board
+          </Link>
         </div>
       ) : (
         <div className="border flex justify-end gap-10 px-5">
