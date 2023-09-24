@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import About from "./profile/About";
 import Review from "./profile/Review";
 import Contact from "./profile/Contact";
@@ -12,6 +12,7 @@ export default function Mainprofile(props) {
   console.log("MainProfiel: ", props);
   const navigate = useNavigate()
   const id = useSelector((state) => state.userData.id);
+  const notify1 = (info) => toast.success(info);
 
   const [first, second] = useState(0);
 
@@ -35,19 +36,37 @@ export default function Mainprofile(props) {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
   };
+ 
 
 
-  const getConnectFriend = async(e, A_ID) => {
+  const getConnectFriend = async (e, A_ID) => {
     e.preventDefault()
     try {
-      const res = await axios.post("http://localhost:8080/conversation", {receiverId: A_ID}, axiosConfig);
+      const res = await axios.post("http://localhost:8080/conversation", { receiverId: A_ID }, axiosConfig);
       console.log(res.data);
       navigate('/message');
-      
+
     } catch (err) {
       console.log(err);
     }
   }
+  const changeAvilable = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.put(`http://localhost:8080/toggleAvailability`, null, axiosConfig);
+  
+      if (response.status === 200) {
+        notify1(response.data.message);
+        window.location.reload(); // Corrected function to reload the page
+      } else {
+        console.error('Failed to toggle availability:', response.data.message);
+      }
+    } catch (error) {
+      console.error('Error toggling availability:', error);
+    }
+  };
+  
+  
 
   return (
     <>
@@ -64,13 +83,39 @@ export default function Mainprofile(props) {
             <div className="lg:w-[90%] sm:w-[80%] ml-2 p-2 max-w-full  m-auto">
               <div className="">
                 <div className="flex flex-col sm:flex-row sm:justify-between ">
-                  <div className="font-normal border-b-2 border-black text-center sm:text-left mb-2 text-3xl font-serif">
-                    {props.data.userData.name}
+                  <div className="flex mr-5">
+
+                    <img className="h-8 px-2 " src="https://as1.ftcdn.net/v2/jpg/05/26/18/56/1000_F_526185646_6jYf3nNPCIzdIjCPRzqC2S4iw5LzF9ra.jpg" alt="" />
+                    <div className="font-normal border-b-2 border-black text-center sm:text-left mb-2 text-3xl font-serif">
+                      {props.data.userData.name}
+                    </div>
+
+                    <div
+                      className={`${props.data.updatedUser.avilable
+                          ? 'border-[#9ae6b4]'
+                          : 'border-[#e51414]'
+                        } justify-center flex items-center rounded-3xl ml-5 transition-all duration-500 group ${props.data.userData._id === id ? 'hover:bg-[#54c77c] ' : ''
+                        } cursor-pointer border-[3px]`}
+                      onClick={(e) => {
+                        if (props.data.userData._id === id) changeAvilable(e);
+                      }}
+                    >
+                      <p
+                        className={`${props.data.updatedUser.avilable ? 'text-[#54c77c]' : 'text-[#dd3838]'
+                          } px-3 ${props.data.userData._id === id ? 'group-hover:text-white ' : ''
+                          } text-[16px] font-sans font-semibold`}
+                      >
+                        {props.data.updatedUser.avilable ? 'Available' : 'Not Available'}
+                      </p>
+                    </div>
+
+
                   </div>
+
                   <div className="flex">
                     <div className="sm:flex text-center sm:flex-row">
-                   
-                      {props.data.updatedUser.tag && props.data.updatedUser.tag.length>0 && props.data.updatedUser.tag.map((tag1, index) => (
+
+                      {props.data.updatedUser.tag && props.data.updatedUser.tag.length > 0 && props.data.updatedUser.tag.map((tag1, index) => (
                         <button
                           key={index}
                           className={`px-3 mb-1 py-1 sm:px-1 font-semibold md:px-2 mx-4 lg:text-left text-center ${"bg-blue-100  text-blue-800"}  rounded-full `}
@@ -80,8 +125,8 @@ export default function Mainprofile(props) {
                       ))}
                     </div>
                     <div>
-                     
-                    {id != props.data.updatedUser.ID && <button onClick={(e) => { getConnectFriend(e, props.data.updatedUser.ID) }} className="hover:bg-blue-300 hover:text-blue-800 hover:outline p-1 bg-blue-600 font-Ubuntu text-lg text-white rounded-sm outline-offset-2 outline-blue-700 outline-double">
+
+                      {id != props.data.updatedUser.ID && <button onClick={(e) => { getConnectFriend(e, props.data.updatedUser.ID) }} className="hover:bg-blue-300 hover:text-blue-800 hover:outline p-1 bg-blue-600 font-Ubuntu text-lg text-white rounded-sm outline-offset-2 outline-blue-700 outline-double">
                         Connect
                       </button>}
                     </div>

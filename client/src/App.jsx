@@ -130,6 +130,8 @@ import Review from "./component/Review";
 import MangeUser from "./component/MangeUser";
 import Super_Manage from "./component/Super_Manage";
 import LandingPage from './component/LandingPage'
+import DocumentBlockChain from "./component/DocumentBlockChain";
+import MainLeader from "./component/leaderboard/Mainleader";
 
 export default function App() {
   const USER_TYPE = {
@@ -169,12 +171,14 @@ export default function App() {
         <Routes>
         <Route path='/signin' element={<PublicElement><Signin /></PublicElement>} />
         <Route path='/signup' element={<PublicElement><Signup /></PublicElement>} />
+        <Route path='/leaderboard' element={<PublicElement><MainLeader /></PublicElement>} />
         <Route path='/about' element={<PublicElement><About /></PublicElement>} />
         <Route path='/searchlawer' element={<PublicElement><SearchLawyer /></PublicElement>} />
         <Route path='/forum' element={<UserElement><Forum /></UserElement>} />
         <Route path='/profile' element={<UserElement><Profile /></UserElement>} />
         <Route path='/logout' element={<PublicElement><Logout /></PublicElement>} />
         <Route path='/message' element={<UserElement><MessagePage /></UserElement>} />
+        <Route path='/documentUpload' element={<UserElement><DocumentBlockChain /></UserElement>} />
         <Route path='/review' element={<UserElement><Review /></UserElement>} />
         <Route path='/manageUser' element={<MediaterElement><MangeUser /></MediaterElement>} />
         <Route path='/superManageUser' element={<SuperAdminElement><Super_Manage/></SuperAdminElement>} />

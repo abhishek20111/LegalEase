@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 
 
 export default function DirectMessage({ messages, owner, conversationId }) {
-
+    console.log("conversationId: ",conversationId);
     function timeAgo(timestamp) {
         const now = new Date();
         const date = new Date(timestamp);
@@ -29,7 +29,7 @@ export default function DirectMessage({ messages, owner, conversationId }) {
     const [userMessageData, setUserMessageData] = useState(null);
     const [userData, setUserData] = useState(null);
     const id = useSelector((state) => state.userData.id);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
 
     const axiosConfig = {
         headers: {
@@ -43,8 +43,9 @@ export default function DirectMessage({ messages, owner, conversationId }) {
             // Fetch user data for the owner
             const getUserData = async () => {
                 try {
+                    setIsLoading(true)
                     const res = await axios.get(`http://localhost:8080/getProfile/${id}`, axiosConfig);
-                    setUserData(res.data);
+                    setUserData(res.data.userData);
                     setIsLoading(false);
                 } catch (err) {
                     console.log(err);
@@ -55,6 +56,7 @@ export default function DirectMessage({ messages, owner, conversationId }) {
             // Fetch user data for the other person in the conversation
             const getOtherUserData = async () => {
                 try {
+                    setIsLoading(true)
                     const res = await axios.get(`http://localhost:8080/getProfile/${conversationId}`, axiosConfig);
                     setUserMessageData(res.data.userData);
                     setIsLoading(false);
@@ -66,11 +68,27 @@ export default function DirectMessage({ messages, owner, conversationId }) {
         }
     }, [id, conversationId, owner]);
 
-    // console.log(userMessageData);
-    // console.log(userData);
+        // console.log("otherData: ",userMessageData);
+        // console.log("MyData: ",userData);
     return (
         <div className='w-full pt-4'>
-            {/* {console.log(messages)} */}
+            {
+                isLoading && (
+                    <div className="w-full h-screen flex justify-center items-center bg-white">
+              <div class="lds-grid">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
+            </div>
+                )
+            }
             <div className='p-4'>
                 <div className={owner ? "flex justify-end" : "flex justify-start"}>
                     <div className='flex flex-col'>

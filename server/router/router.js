@@ -200,6 +200,30 @@ router.get('/getProfile/:id', authentication, async (req, res) => {
     }
 });
 
+router.put('/addDocument', authentication,async (req, res) => {
+    const userId = req.user._id; // Get the user ID from the URL parameter
+    const blockchainData = req.body; // Get blockchain data from the request body
+
+    try {
+        // Find the user by ID
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Add blockchain data to the user's 'blockchain' array
+        user.blockchain = blockchainData;
+
+        // Save the updated user object
+        const updatedUser = await user.save();
+
+        res.json(updatedUser); // Respond with the updated user object
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+}); 
 router.get('/advanceProfile', async (req, res) => {
     console.log("advanceProfile");
     try {
@@ -327,14 +351,14 @@ router.post('/verifyUser/:id', async (req, res) => {
         if (user.points.length === 0) {
             // If it doesn't exist, create it with a default value of 0
             user.points.push({
-              point_curr: 0,
-              profile_v: 0,
-              externalPoint: 0
+                point_curr: 0,
+                profile_v: 0,
+                externalPoint: 0
             });
-          }
-      
-          // Add 250 points to the profile_v field
-          user.points[0].profile_v += 250;
+        }
+
+        // Add 250 points to the profile_v field
+        user.points[0].profile_v += 228;
 
         await user.save();
 

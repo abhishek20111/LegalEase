@@ -111,7 +111,23 @@ export default function MangeUser() {
                                 <div className="text-sm text-gray-900">{profile.city}</div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-900">{profile.city}</div>
+                                <div className="text-sm text-gray-900"><ul>
+                                    {profile.ID.blockchain && profile.ID.blockchain.map((file) => (
+                                        <li key={file.cid} className=' flex flex-col '>
+                                          
+                                            <a
+                                                href={`https://ipfs.io/ipfs/${file.cid}/${file.name}`}
+                                                target="_blank"
+                                                className='border-2 p-2 m-1'
+                                                download={file.name}
+                                            >
+                                                {file.name}
+                                            </a>
+                                            {/* <button onClick={() => handleDelete(file.cid)}>Delete</button> */}
+                                        </li>
+                                    ))}
+                                </ul>
+                                </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="text-sm text-gray-900">

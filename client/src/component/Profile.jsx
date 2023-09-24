@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { uploadcloudnary } from "./upload";
 import { ToastContainer, toast } from "react-toastify";
-import { Country, State, City } from "country-state-city";
 import "react-toastify/dist/ReactToastify.css";
+import { Country, State, City } from "country-state-city";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Mainprofile from "./Mainprofile";
@@ -178,8 +178,8 @@ export default function Profile() {
         notify1("Profile updated successfully");
         refresh();
         // notify1('Please Login Again For changing UI..');
-        localStorage.clear();
-        navigate("/signin");
+        // localStorage.clear();
+        navigate("/documentUpload");
       } else {
         notify2("Profile update failed");
       }

@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Conversation from './Conversation';
 import io from 'socket.io-client'
+import "../pageLoader.css"
 
 export default function MessagePage() {
   const [conversations, setConversations] = useState([]);
@@ -35,7 +36,7 @@ export default function MessagePage() {
   const scrollRef = useRef();
   const [onlineFriends, setOnlineFriends] = useState([]);
   const [friends, setFriends] = useState([]);
-
+  const [isLoader, setIsLoader] = useState(false)
 
 
   const axiosConfig = {
@@ -54,16 +55,16 @@ export default function MessagePage() {
         text: data.text,
         createdAt: Date.now(),
       });
-      
+
     });
   }, []);
 
   useEffect(() => {
     socket.current.emit("addUser", id);
     socket.current.on("getUsers", (users) => {
-      console.log("users1 "+JSON.stringify(users));
+      console.log("users1 " + JSON.stringify(users));
       setOnlineUsers(
-        conversations.filter((f) => f.members((m)=> m!=id) )
+        conversations.filter((f) => f.members((m) => m != id))
       );
       // console.log(onlineFriends);
     });
@@ -80,9 +81,11 @@ export default function MessagePage() {
   useEffect(() => {
     const getConversations = async () => {
       try {
+        setIsLoader(true)
         const res = await axios.get("http://localhost:8080/conversation/" + id, axiosConfig);
         setConversations(res.data);
         console.log(JSON.stringify(conversations));
+        setIsLoader(false)
       } catch (err) {
         console.log(err);
       }
@@ -138,46 +141,48 @@ export default function MessagePage() {
   }, [messages]);
 
 
-useEffect(() => {
-  // Extract unique friend IDs from conversations
-  const friendIds = conversations.map((conversation) =>
+  useEffect(() => {
+    // Extract unique friend IDs from conversations
+    const friendIds = conversations.map((conversation) =>
       conversation.members.find((memberId) => memberId !== id)
     )
-    .filter((friendId, index, self) => {
-      // Filter out duplicate IDs and your own ID
-      return (
-        friendId !== id && index === self.indexOf(friendId)
-      );
-    });
+      .filter((friendId, index, self) => {
+        // Filter out duplicate IDs and your own ID
+        return (
+          friendId !== id && index === self.indexOf(friendId)
+        );
+      });
 
     // friendIds.filter((f)=>onlineFriends)
-    console.log("onlineFriends "+onlineFriends);
+    console.log("onlineFriends " + onlineFriends);
     // friendIds = onlineFriends
 
-  // Fetch profile data for each friend
-  const fetchFriendProfiles = async () => {
-    const friendProfiles = [];
+    // Fetch profile data for each friend
+    const fetchFriendProfiles = async () => {
+      const friendProfiles = [];
 
-    for (const friendId of onlineFriends) {
-      try {
-        const res = await axios.get(
-          `http://localhost:8080/getProfile/${friendId}`,
-          axiosConfig
-        );
-        friendProfiles.push(res.data);
-      } catch (err) {
-        console.error(err);
+      for (const friendId of onlineFriends) {
+        try {
+          setIsLoader(true)
+          const res = await axios.get(
+            `http://localhost:8080/getProfile/${friendId}`,
+            axiosConfig
+          );
+          friendProfiles.push(res.data);
+          setIsLoader(false)
+        } catch (err) {
+          console.error(err);
+        }
       }
-    }
-    console.log(friendProfiles);
-    setFriends(friendProfiles);
-    console.log(friends);
-  };
+      console.log(friendProfiles);
+      setFriends(friendProfiles);
+      console.log(friends);
+    };
 
-  if (friendIds.length > 0) {
-    fetchFriendProfiles();
-  }
-}, [conversations, id, setFriends]);
+    if (friendIds.length > 0) {
+      fetchFriendProfiles();
+    }
+  }, [conversations, id, setFriends]);
 
 
   useEffect(() => {
@@ -185,73 +190,92 @@ useEffect(() => {
     // console.log(onlineUsers);
     setOnlineFriends(friends.filter((f) => onlineUsers.includes(f.userData._id)));
   }, [friends, onlineUsers]);
+  const small = (window.innerWidth <= 640)
+  const [showChat, setShowChat] = useState(!small)
+  const [showList, setshowList] = useState(small)
 
-
-console.log("data "+ JSON.stringify(friends));
-// console.log(friends);
+  console.log("data " + JSON.stringify(friends));
+  // console.log(friends);
   return (
-    <div className='w-[100vw] h-[100vh] flex gap-x-12'>
+    <>
+      <div className='w-full flex flex-col sm:flex-row h-screen py-10 items-center justify-center'>
 
-      {/* seaction one  */}
-      <div className='w-[25%] ml-3'>
-        <input type="text" className='bg-opacity-5 p-2 pl-3  w-full border-b-2 border-gray-300' placeholder='Search for Friend..' />
+        {/* seaction one  */}
 
-        <div className='flex flex-col gap-y-12 my-8'>
+        <div className={`w-full ${small && showList ? "" : "hidden"} sm:block sm:w-[25%] h-full ml-3 border-2 p-2`}>
+          <input type="text" className='bg-opacity-5 p-2 pl-3  w-full border-b-2 border-gray-300' placeholder='Search for Friend..' />
+        {isLoader && console.log("pageLoader", isLoader) && (
+          <div className="inset-0 fixed w-full h-screen flex justify-center items-center">
+            <div class="lds-grid">
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
+          </div>
+        )}
+
+          <div className='flex flex-col gap-y-12 my-8'>
+            {
+              conversations.map((c, ind) => (
+                <div key={ind} className='flex gap-x-6 '>
+                  {console.log(conversations)}
+                  <div onClick={() => { setCurrentChat(c); setShowChat(true); setshowList(false) }}>
+                    <Conversation conversation={c} />
+                  </div>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+
+
+        {/* second two - chat */}
+        <div className={`w-full ${small && showChat ? "" : "hidden"} sm:min-w-[42%] sm:block h-full border-2 sm:max-w-[45%] ml-3 p-2`}>
           {
-            conversations.map((c, ind) => (
-              <div key={ind} className='flex gap-x-6 '>
-                {console.log(conversations)}
-                <div onClick={() => setCurrentChat(c)}>
-                  <Conversation conversation={c} />
+            currentChat ?
+              <div className='h-full flex flex-col justify-end'>
+                <div className='h-[80vh] overflow-hidden hover:overflow-auto'>
+
+                  {messages.map((m) => (
+                    <div key={m._id} ref={scrollRef} className=''>
+
+                      <DirectMessage messages={m} owner={m.sender === id}
+                        conversationId={conversations.find((conversation) => conversation.members.find((memberId) => memberId !== id))?.members.find((memberId) => memberId !== id)} />
+                    </div>
+                  ))}
+                </div>
+
+
+                <div className=' flex pt-3  justify-between '>
+                  <textarea name=""
+                    className='border-gray-300 border-2 rounded w-[90%] p-3'
+                    placeholder='Write Something..'
+                    id="" cols="30" rows="2"
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    value={newMessage}
+                  >
+                  </textarea>
+                  <button
+                    onClick={handleSubmit}
+                    className='m-auto ml-5 h-12 text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2'
+                  >Send</button>
                 </div>
               </div>
-            ))
-          }
+              :
+              <span className='p-3 sm:text-5xl font-semibold my-[30%] text-center text-gray-300 flex'>
+                Open Converstation to start chat.
+              </span>}
+
         </div>
-      </div>
 
-
-      {/* second two - chat */}
-      <div className='min-w-[42%] max-w-[45%] ml-3 '>
-        {
-          currentChat ?
-            <div className='h-[97vh]'>
-              <div className='h-[80vh] overflow-hidden hover:overflow-auto'>
-
-                {messages.map((m) => (
-                  <div key={m._id} ref={scrollRef} className=''>
-
-                    <DirectMessage messages={m} owner={m.sender === id}
-                      conversationId={conversations.find((conversation) => conversation.members.find((memberId) => memberId !== id))?.members.find((memberId) => memberId !== id)} />
-                  </div>
-                ))}
-              </div>
-
-
-              <div className='absolute bottom-0 flex pt-3 min-w-[42%] max-w-[45%] justify-between '>
-                <textarea name=""
-                  className='border-gray-300 border-2 rounded w-[90%] p-3'
-                  placeholder='Write Something..'
-                  id="" cols="30" rows="2"
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  value={newMessage}
-                >
-                </textarea>
-                <button
-                  onClick={handleSubmit}
-                  className='m-auto ml-5 h-12 text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2'
-                >Send</button>
-              </div>
-            </div>
-            :
-            <span className='p-3 text-5xl font-semibold my-[30%] text-center text-gray-300 flex'>
-              Open Converstation to start chat.
-            </span>}
-
-      </div>
-
-      {/* third section online */}
-      {/* <div className='w-[25%]  ml-3 pt-7'>
+        {/* third section online */}
+        {/* <div className='w-[25%]  ml-3 pt-7'>
         <div className='gap-y-3 flex flex-col h-[90vh] overflow-hidden hover:overflow-auto'>
 
 
@@ -276,7 +300,14 @@ console.log("data "+ JSON.stringify(friends));
 
         </div>
       </div> */}
-
-    </div>
+        <div className={`${!small || showList ? "hidden" : ""}`}>
+          <button className='w-10 rounded-full' onClick={() => { setShowChat(!showChat); setshowList(!showList) }}>
+            <img
+              className='h-8 rounded-full'
+              src="data:image/png;base64,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" alt="" />
+          </button>
+        </div>
+      </div>
+    </>
   )
 }

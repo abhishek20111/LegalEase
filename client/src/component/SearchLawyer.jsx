@@ -25,7 +25,7 @@ function SearchLawyer() {
     experience: "",
     rating: "",
     reviews: "",
-    price: "",
+  
     country: "",
     state: "",
     city: "",
@@ -38,6 +38,7 @@ function SearchLawyer() {
   const [selectedState, setSelectedState] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
   const [stateData, setStateData] = useState([]);
+ 
   /*-------------------------------------------------------------------------------*/
   const [allProfileData, setAllProfileData] = useState([]);
   const [shouldRefresh, setShouldRefresh] = useState(true);
@@ -77,7 +78,23 @@ function SearchLawyer() {
       console.log(error);
     }
   };
+  // useEffect(() => {
+  //   // Add a click event listener to the document
+  //   const handleClickOutside = (event) => {
+  //     if (suggestionRef.current && !suggestionRef.current.contains(event.target)) {
+  //       // Click occurred outside the suggestion box, so clear suggestions
+  //       setSuggestions([]);
+  //     }
+  //   };
 
+  //   // Attach the event listener
+  //   document.addEventListener("click", handleClickOutside);
+
+  //   // Clean up the event listener when the component unmounts
+  //   return () => {
+  //     document.removeEventListener("click", handleClickOutside);
+  //   };
+  // }, []);
   const handleRefresh = () => {
     setShouldRefresh(!shouldRefresh);
   };
@@ -89,6 +106,7 @@ function SearchLawyer() {
     }
   }, [shouldRefresh]);
 
+  const [openSuggest, setOpenSuggest] = useState(false)
   /*-------------------------------------------------------------------------------*/
   useEffect(() => {
     if (selectedCountry) {
@@ -99,14 +117,20 @@ function SearchLawyer() {
 
   const updateSuggestions = (query) => {
     const filtered = allProfileData.filter((lawyer) => {
+      console.log(lawyer.ID.name)
       return (
-        lawyer.name.toLowerCase().includes(query.toLowerCase()) &&
-        lawyer.title.toLowerCase().includes(query.toLowerCase()) &&
+       
+        lawyer.ID.name.toLowerCase().includes(query.toLowerCase()) ||
+        lawyer.title.toLowerCase().includes(query.toLowerCase()) ||
         lawyer.position.toLowerCase().includes(query.toLowerCase())
+        
+        
       );
     });
-
+    
+    console.log(filtered);
     setSuggestions(filtered);
+    if(suggestions.length > 0) setOpenSuggest(true)    
   };
 
   const handleSearchChange = (e) => {
@@ -114,6 +138,9 @@ function SearchLawyer() {
     setSearchQuery(query);
 
     updateSuggestions(query);
+   
+  
+    //console.log(query)
   };
   const handleCountryChange = (value) => {
     console.log(value);
@@ -160,14 +187,18 @@ function SearchLawyer() {
 
   const filteredLawyers = allProfileData
     .filter((lawyer) => {
-      const queryWords = searchQuery.toLowerCase().split(" ");
+      const queryWords = searchQuery.toLowerCase().split(' ');
 
+     // console.log(JSON.stringify(allProfileData));
       return (
         queryWords.every((word) =>
-          Object.values(lawyer).some(
-            (value) =>
-              typeof value === "string" && value.toLowerCase().includes(word)
-          )
+        lawyer.ID.name.toLowerCase().includes(word) ||
+        lawyer.title.toLowerCase().includes(word) ||
+        lawyer.position.toLowerCase().includes(word)
+          // Object.values(lawyer).some(
+          //   (value) =>
+          //     typeof value === 'string' && value.toLowerCase().includes(word)
+          
         ) &&
         (!filters.experience ||
           lawyer.description?.experience?.year?.$numberInt >=
@@ -181,10 +212,18 @@ function SearchLawyer() {
     })
     .sort((a, b) => {
       if (sortBy === "experience") {
-        const experienceDiff =
-          (b.description?.experience?.year?.$numberInt || 0) -
-          (a.description?.experience?.year?.$numberInt || 0);
-        return sortDirection === "asc" ? experienceDiff : -experienceDiff;
+        const ratingComparison =
+      parseFloat(b.T_rating || 0) - parseFloat(a.T_rating || 0);
+      if (ratingComparison === 0) {
+        const experienceA = a.description?.experience?.year?.$numberInt || 0;
+        const experienceB = b.description?.experience?.year?.$numberInt || 0;
+        return experienceB - experienceA;}
+        return sortDirection === "asc" ? ratingComparison : -ratingComparison ; 
+        // if(b.description?.experience?.year?.$numberInt && b.T_rating)
+        // const experienceDiff =
+        //   (b.description?.experience?.year?.$numberInt && b.T_rating) -
+        //   (a.description?.experience?.year?.$numberInt  && b.T_rating);
+        // return sortDirection === "asc" ? experienceDiff : -experienceDiff;
       } else if (sortBy === "T_rating") {
         const ratingDiff =
           parseFloat(b.T_rating || 0) - parseFloat(a.T_rating || 0);
@@ -215,7 +254,7 @@ function SearchLawyer() {
   };
 
   return (
-    <div className="bg-blue-50 min-h-screen  ">
+    <div className="bg-blue-50 min-h-screen  " onClick={()=>setOpenSuggest(false)}>
       <div
         className=" mb-5 py-10 flex flex-col justify-center"
         style={{ backgroundImage: `url(${bgOverlay})` }}
@@ -235,24 +274,24 @@ function SearchLawyer() {
             onChange={handleSearchChange}
             // onChange={(e) => setSearchQuery(e.target.value)}
           />
-          {suggestions.length > 0 && (
-            <div className="absolute z-10 bg-white  w-1/2 rounded-md shadow-md">
+          {openSuggest && (
+            <div className="absolute top-40 z-10 bg-white  w-1/2 rounded-md shadow-md">
               <ul>
                 {suggestions.map((suggestion, index) => (
                   <li
                     key={index}
                     className="p-2 cursor-pointer hover:bg-gray-200"
                     onClick={() => {
-                      setSearchQuery(suggestion.name) || setSuggestions([]);
+                      setSearchQuery(suggestion.ID.name) || setSuggestions([]);
                     }}
                   >
-                    {suggestion.name}
+                    {suggestion.ID.name}
                   </li>
                 ))}
               </ul>
             </div>
           )}
-          <div className="flex justify-between items-center w-[70%]">
+          <div className="flex flex-wrap sm:flex-nowrap justify-between items-center w-[70%]" >
             <div className="">
               <div className="text-white  ">
                 <div className="space-y-2  ">
@@ -317,7 +356,7 @@ function SearchLawyer() {
               >
                 Ratings {getSortIcon("T_rating")}
               </button>
-              <button
+              {/* <button
                 className={`font-semibold text-black px-4 py-2 bg-white rounded-full`}
                 onClick={() => {
                   handleSortChange({ target: { value: "price" } });
@@ -325,7 +364,7 @@ function SearchLawyer() {
                 }}
               >
                 Sort by Price {getSortIcon("price")}
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
