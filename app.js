@@ -115,7 +115,7 @@ io.on("connection", (socket) => {
     // console.log( "a user connected.");
     //take userId and socketId from user
     socket.on("addUser", (userId) => {
-        // console.log("userId-- "+userId, socket.id);
+        console.log("userId-- "+userId, socket.id);
         addUser(userId, socket.id);
         console.log(users);
         io.emit("getUsers", users); 
