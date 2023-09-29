@@ -15,6 +15,7 @@ import LandingPage from "./component/LandingPage";
 import { Link } from "react-router-dom";
 import SearchLawyer from "./component/SearchLawyer";
 import Mainprofile from "./component/Mainprofile";
+import UploadDocs from "./component/UploadDocs"
 
 export default function App() {
   const USER_TYPE = {
@@ -105,6 +106,14 @@ export default function App() {
           element={
             <PublicElement>
               <LandingPage />
+            </PublicElement>
+          }
+        />
+        <Route
+          path="/upload"
+          element={
+            <PublicElement>
+              <UploadDocs />
             </PublicElement>
           }
         />

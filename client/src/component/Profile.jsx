@@ -237,7 +237,7 @@ export default function Profile() {
     <div className="">
       {/* **************************************************************************************************************** */}
       {CURRENT_USER_TYPE !== USER_TYPE.USER ? (
-        <div>
+        <div className="w-full">
           {console.log("calling main: ", newProfile)}
           {!newProfile.updatedUser && (
             <div className="w-full h-screen flex justify-center items-center bg-white">
@@ -254,7 +254,11 @@ export default function Profile() {
               </div>
             </div>
           )}
-          {newProfile.updatedUser && <Mainprofile data={newProfile} />}
+          <div className=" justify-center flex items-center">
+            <div className="lg:w-3/4 flex justify-center items-center">
+              {newProfile.updatedUser && <Mainprofile data={newProfile} />}
+            </div>
+          </div>
         </div>
       ) : (
         <>

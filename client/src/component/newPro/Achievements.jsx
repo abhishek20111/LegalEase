@@ -3,7 +3,7 @@ import Review from "./Review";
 import RatingStars from "react-rating-stars-component";
 
 export default function Achievements(props) {
-  console.log(props.data.updatedUser.description.achievements);
+  console.log(props.data);
 
   return (
     <div className="flex flex-col justify-between md:flex-row bg-white rounded-t-3xl">
@@ -14,7 +14,7 @@ export default function Achievements(props) {
             <RatingStars
               count={5}
               size={40}
-              value={parseFloat(props.data.T_rating) || 0}
+              value={parseFloat(props.data.rating) || 0}
               edit={false}
             />
           </div>
@@ -32,7 +32,7 @@ export default function Achievements(props) {
                 {props.data.updatedUser.description.achievements.map((item, index) => (
                   <div index={index} className="flex flex-col sm:relative sm:before:absolute sm:before:top-2 sm:before:w-4 sm:before:h-4 sm:before:rounded-full sm:before:left-[-35px] sm:before:z-[1] before:bg-violet-400">
                     <h3 className="text-xl font-sans ">
-                      {item}
+                      Sample Achievement
                     </h3>
                     {/* <time className="text-xs tracki uppercase text-gray-400">
                       Dec 2020

@@ -5,6 +5,10 @@ import lawyer from "../assets/lawyerCut1.png";
 import bg from "../assets/bg-pattern.svg";
 import lawyer2 from "../assets/l21.png";
 import graph from "../assets/banner-img.png";
+import Section1 from "./HomePage/Section1";
+import Section2 from "./HomePage/Section2";
+import Section3 from "./HomePage/Section3";
+import Footer from "./HomePage/Footer";
 
 export default function LandingPage() {
   const [imageSrc, setImageSrc] = useState(lawyer); // Initial image source
@@ -34,6 +38,7 @@ export default function LandingPage() {
   }, []);
 
   return (
+    <>
     <section
       className="min-h-screen md:flex-none md:flex-col"
       style={{ backgroundImage: `url(${bg})` }}
@@ -69,8 +74,7 @@ export default function LandingPage() {
             <span className="font-serif">"</span>
           </h1>
           <p className="max-w-xl mx-auto font-Oxygen text-xl xl:mx-0 py-4">
-            Explore a diverse network of legal experts offering a multitude of
-            specialized services, all at your fingertips.
+            Trusted by over 1 million people and 1000 businesses, we are the leading online platform for all things related law.
           </p>
           <div className=" flex flex-wrap sm:flex-nowrap items-start justify-center sm:flex  xl:justify-start">
             {/* <Link to="/intern"> */}
@@ -79,9 +83,9 @@ export default function LandingPage() {
             </a>
             {/* </Link> */}
             <div>
-              {/* {imageSrc === lawyer && (
+              {imageSrc === lawyer && (
                 <img src={graph} className="h-[200px] md:h-[300px]" alt="" />
-              )} */}
+              )}
             </div>
           </div>
         </div>
@@ -97,5 +101,15 @@ export default function LandingPage() {
       </div>
       {/* </Fade> */}
     </section>
+      <div
+        className="mih-h-screen"
+        
+      >
+        <Section1 />
+        <Section2/>
+        <Section3 />
+      </div>
+      <Footer />
+      </>
   );
 }

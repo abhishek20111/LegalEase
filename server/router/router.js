@@ -202,6 +202,31 @@ router.get('/getProfile/:id', authentication, async (req, res) => {
     }
 });
 
+router.put('/addDocument', authentication,async (req, res) => {
+    const userId = req.user._id; // Get the user ID from the URL parameter
+    const blockchainData = req.body; // Get blockchain data from the request body
+    console.log(req.body)
+    try {
+        // Find the user by ID
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Add blockchain data to the user's 'blockchain' array
+        user.blockchain = blockchainData;
+
+        // Save the updated user object
+        const updatedUser = await user.save();
+
+        res.json(updatedUser); // Respond with the updated user object
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 router.get('/advanceProfile', async (req, res) => {
     console.log("advanceProfile");
     try {

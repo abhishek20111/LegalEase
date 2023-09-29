@@ -100,10 +100,10 @@ export default function Mainprofile(props) {
                 </span>
                 <div className="flex sm:w-48 sm:text-left sm:ml-2 flex-col">
                   <div className="text-2xl font-semibold">
-                    {(props.data.updatedUser.description.experience.winning /
+                    {((props.data.updatedUser.description.experience.winning /
                       props.data.updatedUser.description.experience
                         .total_case) *
-                      100}
+                      100).toFixed(1)}
                     %
                   </div>
                   <div className="text-1xl">Winning Ratio</div>
