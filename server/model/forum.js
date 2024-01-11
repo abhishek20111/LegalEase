@@ -4,6 +4,14 @@ const userSchema = new mongoose.Schema({
     ID:{
         type:ObjectId, ref:"User_SIH"
     },
+    comment:[{
+        type:String,
+        reply:{
+            replyID:{type:ObjectId, ref:"User_SIH"},
+            mes:[String]
+        },
+    }],
+=======
     comment:{
         type:String,
         reply:[String],

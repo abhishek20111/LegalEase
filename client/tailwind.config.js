@@ -5,8 +5,12 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        Ubuntu: ['Ubuntu', 'sans-serif'],
+        Oxygen: ['Oxygen', 'sans-serif'],
+      }
+    },
   },
   plugins: [],
 }
-

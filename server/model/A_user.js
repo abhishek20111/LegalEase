@@ -15,14 +15,17 @@ const userSchema = new mongoose.Schema({
         experience: {
             year: Number,
             winning: Number,
-            total_case: Number
+            total_case: Number,
         },
         about: [String],
         achievements: [String]
     },
     avilable: Boolean,
     tag: [String],
+    verifyUser:{ type:Boolean, default:false},
     address: { type: String },
+    city:String,
+    State:String,
     T_rating: String,
    
     
@@ -48,6 +51,29 @@ const userSchema = new mongoose.Schema({
         rating: String,
         description: String
     }],
+    clientId:[{
+        Id:String,
+        Objectives:[{
+            task:{
+                complete:Boolean,
+                task_info:[String],
+                task_point: {type:Number, default:0}
+            } 
+        }]
+    }],
+    document:[{
+        adhar:String,
+        pan:String,
+        lic:String,
+    }],
+    points: [{
+        point_curr: {type:Number, default:0},
+        profile_v:{type:Number, default:0},
+        externalPoint:Number
+    }]
+
+}, { timestamps: true })
+=======
 
    
     

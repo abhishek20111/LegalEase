@@ -69,7 +69,6 @@ router.post("/loginUser", async (req, res) => {
 })
 
 
-
 router.post('/updateProfile', authentication, async (req, res) => {
     console.log("updateProfile");
     // console.log(req.body);
@@ -86,8 +85,8 @@ router.post('/updateProfile', authentication, async (req, res) => {
 
         // Remove any email field from the req.body to avoid the unique index issue
         // delete req.body.email;
-        
-            // console.log("\n\n\n\n "+A_User.getIndexes()+"\n\n\n");
+
+        // console.log("\n\n\n\n "+A_User.getIndexes()+"\n\n\n");
         const existingUser = await A_User.findOne({ ID: req.user._id });
         console.log("existingUser ", existingUser);
         if (existingUser != null) {
@@ -117,12 +116,12 @@ router.post('/updatePro', authentication, async (req, res) => {
             { new: true }
         );
         const existingUser = await A_User.findOne({ ID: req.user._id });
-    
+
         if (existingUser) {
             // User with the provided ID already exists, return "data can't be modified"
             return res.status(400).json({ message: "Data can't be modified" });
         }
-    
+
         // Create a new user document using the data from the frontend
         const newUser = new A_User({
             ID: req.body.ID,
@@ -142,7 +141,7 @@ router.post('/updatePro', authentication, async (req, res) => {
         await newUser.save();
 
         console.log('newUser ', JSON.parse(JSON.stringify(newUser)));
-    
+
         res.status(201).json({ message: 'User created successfully' });
     } catch (error) {
         console.error(error);
@@ -181,12 +180,14 @@ router.get('/getProfile/:id', authentication, async (req, res) => {
     console.log("getProfile");
     
     const id = req.params.id;
-    // console.log("id "+id);
+    console.log("getProfile id "+id);
     try {
         let responseData = {};
         if (req.user.role === "Admin") {
 
-            const updatedUser = await A_User.findOne({ ID: id });
+            const updatedUser = await A_User.findOne({ ID: id })
+            .populate('review.Id', '-password')
+            .exec();
 
             if (!updatedUser) {
                 return res.status(404).json({ error: 'User not found' });
@@ -195,14 +196,121 @@ router.get('/getProfile/:id', authentication, async (req, res) => {
         }
         const userData = await User.findOne({ _id: id })
         responseData.userData = userData;
-        // console.log("new data "+JSON.stringify(responseData));
+        console.log("new data "+JSON.stringify(responseData));
+        console.log(responseData);
         res.status(200).json(responseData);
     } catch (error) {
-        console.error(error.message); // Log the error message for debugging
+        console.log(error.message); // Log the error message for debugging
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
+router.put('/addDocument', authentication,async (req, res) => {
+    const userId = req.user._id; // Get the user ID from the URL parameter
+    const blockchainData = req.body; // Get blockchain data from the request body
+    console.log(req.body)
+    try {
+        // Find the user by ID
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Add blockchain data to the user's 'blockchain' array
+        user.blockchain = blockchainData;
+
+        // Save the updated user object
+        const updatedUser = await user.save();
+
+        res.json(updatedUser); // Respond with the updated user object
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+router.get('/advanceProfile', async (req, res) => {
+    console.log("advanceProfile");
+    try {
+        const A_Data = await A_User.find().populate('ID', '-password');
+        console.log("A_Data:", A_Data); 
+        res.status(200).json({A_Data})
+    } catch (error) {
+        console.log(error.message); 
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+router.post('/comment', authentication, async (req, res) => {
+    console.log('comment');
+    try {
+        const { comment } = req.body;
+        let check = await Forum.findOne({ ID: req.user._id });
+
+        if (check !== null) {
+            check.comment.push(comment);
+        } else {
+            // Create a new 'Forum' instance if no entry with the ID is found
+            check = new Forum({ ID: req.user._id, comment: [comment] });
+        }
+
+        // Save the 'check' instance (either existing or newly created)
+        await check.save();
+
+        res.status(200).json({ message: 'Data saved to Database' });
+    } catch (error) {
+        console.error('Data is not saved', error);
+        res.status(500).json({ error: 'Data is not saved to the database' });
+    }
+});
+
+
+router.get('/getComment', authentication, async (req, res) => {
+    console.log("getComment");
+    try {
+        const comment = await Forum
+            .find()
+            .populate('ID', 'name email')
+            .populate('comment likes')
+            .exec();
+        console.log(comment);
+        return res.status(200).json({ comment })
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({ error: 'data is not savong to database' });
+    }
+})
+
+
+router.put('/toggleAvailability', authentication, async (req, res) => {
+    console.log("toggleAvailability");
+    try {
+        
+        const userId = req.user._id; // Assuming you have a user ID in req.user.id
+        const user = await A_User.findOne({ ID: userId });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Toggle the 'available' field
+        user.avilable = !user.avilable;
+        await user.save();
+
+        return res
+            .status(200)
+            .json({ message: 'Availability toggled successfully', available: user.available });
+    } catch (error) {
+        console.error(error);
+        return  res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+
+router.post('/review', authentication, async (req, res) => {
+=======
 
 
 router.post('/comment', authentication, async (req, res) => {
@@ -359,6 +467,10 @@ router.post('/comment/reply/:commentId', authentication, async (req, res) => {
       res.status(500).json({ error: 'Server error' });
     }
   });
+ 
+
+module.exports = router;
+=======
 
 
   router.get("/user/:id", async (req, res) => {

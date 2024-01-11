@@ -4,7 +4,10 @@ const mongoose = require('mongoose');
 require('./model/user.js')
 require('./model/A_user.js')
 require('./model/forum.js')
+require('./model/Conversation.js')
+require('./model/Message.js')
 const router = require('./router/router.js');
+const Conversation = require('./router/Conversation.js');
 const dotenv = require('dotenv');
 const path = require('path')
 
@@ -26,7 +29,7 @@ mongoose.connect(`mongodb+srv://dimpy:${process.env.DB_PASSWORD}@cluster0.glj568
    
     useNewUrlParser: true,//handle deprecation warnings from the MongoDB driver's default parser. It also provides better support for advanced connection string features like the `srv` protocol, which enables clients to discover MongoDB server instances via DNS records.
     useUnifiedTopology: true//new server discovery and monitoring engine .
-}) 
+})  
     .then(() => {  
         console.log("Successfully connect to MongoDB");
     })
@@ -36,13 +39,14 @@ mongoose.connect(`mongodb+srv://dimpy:${process.env.DB_PASSWORD}@cluster0.glj568
 
 
 app.use('/', router);
+app.use('/conversation', Conversation);
 
 // Serving the frontent
-app.use(express.static(path.join(__dirname, 'client', 'dist')))
-app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'))
+// app.use(express.static(path.join(__dirname, 'client', 'dist')))
+// app.get("*", (req, res) => {
+//     res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'))
 
-})
+// })
 
 
 
