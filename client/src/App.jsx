@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setIsLogin, updateToken } from "./store/UserSlice";
@@ -16,6 +17,21 @@ import { Link } from "react-router-dom";
 import SearchLawyer from "./component/SearchLawyer";
 import Mainprofile from "./component/Mainprofile";
 import UploadDocs from "./component/UploadDocs"
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux';
+import { setIsLogin, updateToken } from './store/UserSlice';
+import Navbar from './component/Navbar';
+import { Route, Routes } from 'react-router-dom';
+import Signin from './component/Signin';
+import Signup from './component/Signup';
+import Home from './component/Home';
+import About from './component/About';
+import { ToastContainer } from 'react-toastify';
+import Logout from './component/Logout';
+import Profile from './component/Profile';
+import Forum from './component/Forum';
+import Review from './component/Review';
+import Starrating from './component/Starrating';
 
 export default function App() {
   const USER_TYPE = {
@@ -117,6 +133,16 @@ export default function App() {
             </PublicElement>
           }
         />
+=======
+        <Route path='/signin' element={<PublicElement><Signin /></PublicElement>} />
+        <Route path='/signup' element={<PublicElement><Signup /></PublicElement>} />
+        <Route path='/about' element={<PublicElement><About /></PublicElement>} />
+        <Route path='/profile' element={<UserElement><Profile /></UserElement>} />
+        <Route path='/logout' element={<PublicElement><Logout /></PublicElement>} />
+        <Route path='/' element={<PublicElement><Home /></PublicElement>} />
+        <Route path='/forum' element={<PublicElement><Forum /></PublicElement>} />
+        <Route path='/review' element={<PublicElement><Review /></PublicElement>} />
+        <Route path='/starrating' element={<PublicElement><Starrating /></PublicElement>} />
       </Routes>
     );
   }

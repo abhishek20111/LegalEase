@@ -11,6 +11,11 @@ const userSchema = new mongoose.Schema({
             mes:[String]
         },
     }],
+=======
+    comment:{
+        type:String,
+        reply:[String],
+    },
     likes:[String],
 
 }, { timestamps: true })

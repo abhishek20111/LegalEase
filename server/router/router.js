@@ -1,9 +1,11 @@
 const express = require('express')
 const router = express.Router()
+  /////////new added
 
 const bodyParser = require("body-parser");
 const mongoose = require('mongoose')
 const User = mongoose.model('User_SIH')
+
 const A_User = mongoose.model('A_User_SIH')
 const Forum = mongoose.model('Forum_User_SIH')
 const bcrypt = require('bcrypt')
@@ -176,6 +178,7 @@ router.post('/updateProfilePic', authentication, async (req, res) => {
 router.get('/getProfile/:id', authentication, async (req, res) => {
 
     console.log("getProfile");
+    
     const id = req.params.id;
     console.log("getProfile id "+id);
     try {
@@ -307,6 +310,129 @@ router.put('/toggleAvailability', authentication, async (req, res) => {
 
 
 router.post('/review', authentication, async (req, res) => {
+=======
+
+
+router.post('/comment', authentication, async (req, res) => {
+    try {
+      // Get the comment from the request body
+      const { comment } = req.body;
+  
+      // Create a new comment and save it to the database
+      const newComment = new Forum({
+        comment,
+        likes: [], // Initialize likes as an empty array
+        ID: req.user._id, // Assuming you have a user ID in req.user after authentication
+      });
+  
+      const savedComment = await newComment.save();
+  
+      res.json(savedComment);
+    } catch (error) {
+      console.error('Error saving comment to the database:', error);
+      res.status(500).json({ error: 'Data is not saved to the database' });
+    }
+  });
+
+  
+
+  router.post('/likeComment/:commentId', authentication, async (req, res) => {
+    try {
+      const commentId = req.params.commentId;
+  
+      // Find the comment by ID
+      const comment = await Forum.findById(commentId);
+  
+      if (!comment) {
+        return res.status(404).json({ error: 'Comment not found' });
+      } 
+  
+      // Check if the user has already liked the comment
+      const userLiked = comment.likes.includes(req.user._id);
+  
+      if (userLiked) {
+        return res.status(400).json({ error: 'You have already liked this comment' });
+      }
+  
+      // Add the user's ID to the comment's likes array
+      comment.likes.push(req.user._id);
+  
+      // Save the updated comment
+      const updatedComment = await comment.save();
+  
+      return res.json(updatedComment);
+    } catch (error) {
+      console.error('Error liking comment:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+
+  router.post('/unlikeComment/:commentId', authentication, async (req, res) => {
+    try {
+      const commentId = req.params.commentId;
+  
+      // Find the comment by ID
+      const comment = await Forum.findById(commentId);
+  
+      if (!comment) {
+        return res.status(404).json({ error: 'Comment not found' });
+      }
+  
+      // Check if the user has already liked the comment
+      const userLiked = comment.likes.includes(req.user._id);
+  
+      if (!userLiked) {
+        return res.status(400).json({ error: 'You have not liked this comment' });
+      }
+  
+      // Remove the user's ID from the comment's likes array
+      comment.likes = comment.likes.filter((userId) => userId !== req.user._id);
+  
+      // Save the updated comment
+      const updatedComment = await comment.save();
+  
+      return res.json(updatedComment);
+    } catch (error) {
+      console.error('Error unliking comment:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+
+  // Route to post a reply to a comment
+router.post('/comment/reply/:commentId', authentication, async (req, res) => {
+    try {
+      const commentId = req.params.commentId;
+      const { replyText } = req.body;
+  
+      // Find the comment by ID
+      const comment = await Forum.findById(commentId);
+  
+      if (!comment) {
+        return res.status(404).json({ error: 'Comment not found' });
+      }
+  
+      // Create a new reply and add it to the comment's reply array
+      const newReply = {
+        text: replyText,
+        user: req.user._id,
+      };
+  
+      comment.comment.reply.push(newReply); // Assuming your schema structure is nested
+  
+      // Save the updated comment
+      const updatedComment = await comment.save();
+  
+      return res.json(updatedComment);
+    } catch (error) {
+      console.error('Error saving reply to the comment:', error);
+      return res.status(500).json({ error: 'Data is not saved to the database' });
+    }
+  });
+
+
+  router.post('/review', authentication, async (req, res) => {
     const {ID, rating, description } = req.body;
  
     if (!ID|| !rating  || !description ) {
@@ -344,3 +470,23 @@ router.post('/review', authentication, async (req, res) => {
  
 
 module.exports = router;
+=======
+
+
+  router.get("/user/:id", async (req, res) => {
+    try {
+        const users = await A_User.find();
+        if (!users || users.length === 0) { 
+            return res.status(404).json({ error: "No users found" });
+        }
+        return res.status(200).json({ users });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+
+
+module.exports = router;
+
